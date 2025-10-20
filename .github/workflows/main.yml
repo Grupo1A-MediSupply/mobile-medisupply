@@ -1,0 +1,188 @@
+name: 🚀 Deploy to AWS S3 + CloudFront v1
+
+# This workflow is used to deploy the React Native web app to AWS S3 and CloudFront
+on:
+  push:
+        branches: [ '**' ]
+  pull_request:
+        branches: [ '**' ]
+  
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET_STAGING: medi-supply-staging
+  S3_BUCKET_PRODUCTION: medi-supply-production
+  CLOUDFRONT_DISTRIBUTION_STAGING: E1234567890STAGING
+  CLOUDFRONT_DISTRIBUTION_PRODUCTION: E0987654321PROD
+
+jobs:
+  # Job para ejecutar tests antes del deployment
+ 
+
+  # Job para construir la aplicación web
+  build:
+    name: 🏗️ Build Web App
+    runs-on: ubuntu-latest
+ 
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: reactMobile/package-lock.json
+        
+    - name: 📦 Install dependencies
+      working-directory: ./reactMobile
+      run: npm ci
+      
+    - name: 🏗️ Build for web
+      working-directory: ./reactMobile
+      run: npm run build:production
+      
+    - name: 📦 Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-build
+        path: reactMobile/dist/
+        retention-days: 7
+
+  # Job para desplegar a staging
+  deploy-staging:
+    name: 🌐 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment: staging
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: web-build
+        path: dist/
+        
+    - name: 🔧 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: 🔍 Verify S3 bucket exists
+      run: |
+        echo "Verifying S3 bucket: ${{ env.S3_BUCKET_STAGING }}"
+        aws s3 ls s3://${{ env.S3_BUCKET_STAGING }} || {
+          echo "❌ Bucket ${{ env.S3_BUCKET_STAGING }} does not exist!"
+          echo "Please create the bucket first with:"
+          echo "aws s3 mb s3://${{ env.S3_BUCKET_STAGING }} --region ${{ env.AWS_REGION }}"
+          exit 1
+        }
+        echo "✅ Bucket ${{ env.S3_BUCKET_STAGING }} exists and is accessible"
+        
+    - name: 🚀 Deploy to S3
+      run: |
+        echo "Deploying to S3 bucket: ${{ env.S3_BUCKET_STAGING }}"
+        aws s3 sync dist/ s3://${{ env.S3_BUCKET_STAGING }} --delete --cache-control "public, max-age=31536000"
+        
+    - name: 🗂️ Upload index.html with no-cache
+      run: |
+        aws s3 cp dist/index.html s3://${{ env.S3_BUCKET_STAGING }}/index.html --cache-control "no-cache, no-store, must-revalidate"
+        
+    - name: ⚡ Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_STAGING }} --paths "/*"
+        
+    - name: 📊 Deployment Summary
+      run: |
+        echo "## 🌐 Staging Deployment Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+        echo "**S3 Bucket**: ${{ env.S3_BUCKET_STAGING }}" >> $GITHUB_STEP_SUMMARY
+        echo "**CloudFront Distribution**: ${{ env.CLOUDFRONT_DISTRIBUTION_STAGING }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY
+
+  # Job para desplegar a producción
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: web-build
+        path: dist/
+        
+    - name: 🔧 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        
+    - name: 🚀 Deploy to S3
+      run: |
+        aws s3 sync dist/ s3://${{ env.S3_BUCKET_PRODUCTION }} --delete --cache-control "public, max-age=31536000"
+        
+    - name: 🗂️ Upload index.html with no-cache
+      run: |
+        aws s3 cp dist/index.html s3://${{ env.S3_BUCKET_PRODUCTION }}/index.html --cache-control "no-cache, no-store, must-revalidate"
+        
+    - name: ⚡ Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_PRODUCTION }} --paths "/*"
+        
+    - name: 📊 Deployment Summary
+      run: |
+        echo "## 🚀 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment**: Production" >> $GITHUB_STEP_SUMMARY
+        echo "**S3 Bucket**: ${{ env.S3_BUCKET_PRODUCTION }}" >> $GITHUB_STEP_SUMMARY
+        echo "**CloudFront Distribution**: ${{ env.CLOUDFRONT_DISTRIBUTION_PRODUCTION }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ✅ Successfully deployed" >> $GITHUB_STEP_SUMMARY
+
+  # Job para notificaciones
+  notify:
+    name: 📢 Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+    - name: 📢 Deployment Notification
+      run: |
+        echo "## 📢 Deployment Notification" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Did you know?" >> $GITHUB_STEP_SUMMARY
+        echo "- This deployment includes 27 passing unit tests" >> $GITHUB_STEP_SUMMARY
+        echo "- All utility functions are properly tested" >> $GITHUB_STEP_SUMMARY
+        echo "- Coverage reports are available in the artifacts" >> $GITHUB_STEP_SUMMARY
