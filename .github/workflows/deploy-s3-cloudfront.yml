@@ -1,5 +1,6 @@
 name: 🚀 Deploy to AWS S3 + CloudFront v1
 
+# This workflow is used to deploy the React Native web app to AWS S3 and CloudFront
 on:
   push:
         branches: [ '**' ]
