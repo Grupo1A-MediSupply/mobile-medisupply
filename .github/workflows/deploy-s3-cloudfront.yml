@@ -108,8 +108,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
         
+    - name: 🔍 Verify S3 bucket exists
+      run: |
+        echo "Verifying S3 bucket: ${{ env.S3_BUCKET_STAGING }}"
+        aws s3 ls s3://${{ env.S3_BUCKET_STAGING }} || {
+          echo "❌ Bucket ${{ env.S3_BUCKET_STAGING }} does not exist!"
+          echo "Please create the bucket first with:"
+          echo "aws s3 mb s3://${{ env.S3_BUCKET_STAGING }} --region ${{ env.AWS_REGION }}"
+          exit 1
+        }
+        echo "✅ Bucket ${{ env.S3_BUCKET_STAGING }} exists and is accessible"
+        
     - name: 🚀 Deploy to S3
       run: |
+        echo "Deploying to S3 bucket: ${{ env.S3_BUCKET_STAGING }}"
         aws s3 sync dist/ s3://${{ env.S3_BUCKET_STAGING }} --delete --cache-control "public, max-age=31536000"
         
     - name: 🗂️ Upload index.html with no-cache
