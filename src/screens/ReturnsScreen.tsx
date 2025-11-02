@@ -15,7 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, RETURN_STATUS } from '../constants';
+import { COLORS, SIZES, RETURN_STATUS, GRADIENTS } from '../constants';
 import { Return } from '../types';
 
 interface ReturnsScreenProps {
@@ -107,8 +107,8 @@ const ReturnsScreen: React.FC<ReturnsScreenProps> = ({ navigation }) => {
 
   const renderStatsCard = (card: any, index: number) => (
     <View key={index} style={styles.statsCard}>
-      <LinearGradient
-        colors={COLORS.GRADIENTS.danger}
+  <LinearGradient
+        colors={GRADIENTS.danger}
         style={styles.statsCardGradient}
       >
         <MaterialIcons name={card.icon} size={24} color={COLORS.white} />

@@ -13,7 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, VISIT_STATUS } from '../constants';
+import { COLORS, SIZES, VISIT_STATUS, GRADIENTS } from '../constants';
 import { Visit } from '../types';
 
 interface VisitsScreenProps {
