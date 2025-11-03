@@ -13,7 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, MOCK_DATA } from '../constants';
+import { COLORS, SIZES, MOCK_DATA, GRADIENTS } from '../constants';
 import { Client, StatsCard } from '../types';
 
 interface DashboardScreenProps {

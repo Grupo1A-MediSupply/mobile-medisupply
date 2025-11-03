@@ -13,7 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, ORDER_STATUS } from '../constants';
+import { COLORS, SIZES, ORDER_STATUS, GRADIENTS } from '../constants';
 import { Order } from '../types';
 
 interface OrdersScreenProps {

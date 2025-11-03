@@ -3,15 +3,7 @@ import { render, fireEvent } from '@testing-library/react-native';
 import StatsCard from '../StatsCard';
 import { StatsCard as StatsCardType } from '../../types';
 
-// Mock de expo-linear-gradient
-jest.mock('expo-linear-gradient', () => ({
-  LinearGradient: 'LinearGradient',
-}));
-
-// Mock de @expo/vector-icons
-jest.mock('@expo/vector-icons', () => ({
-  MaterialIcons: 'MaterialIcons',
-}));
+// Los mocks ya están en jest-setup.js global
 
 describe('StatsCard Component', () => {
   const mockCard: StatsCardType = {
@@ -57,8 +49,15 @@ describe('StatsCard Component', () => {
       <StatsCard card={mockCard} style={customStyle} />
     );
 
-    const container = getByTestId('stats-card-container');
-    expect(container.props.style).toContainEqual(customStyle);
+    // El estilo se aplica al TouchableOpacity, no al container interno
+    const touchable = getByTestId('stats-card-touchable');
+    const styles = Array.isArray(touchable.props.style) 
+      ? touchable.props.style 
+      : [touchable.props.style];
+    const hasCustomStyle = styles.some((style: any) => 
+      style && style.marginTop === 20
+    );
+    expect(hasCustomStyle).toBe(true);
   });
 
   it('renders different card data correctly', () => {

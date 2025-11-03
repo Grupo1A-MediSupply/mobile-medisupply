@@ -14,7 +14,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, MOCK_DATA, CATEGORIES } from '../constants';
+import { COLORS, SIZES, MOCK_DATA, CATEGORIES, GRADIENTS } from '../constants';
 import { Product } from '../types';
 
 interface InventoryScreenProps {

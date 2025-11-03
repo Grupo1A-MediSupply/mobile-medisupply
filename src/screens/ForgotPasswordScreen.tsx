@@ -14,7 +14,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { COLORS, SIZES, FONTS } from '../constants';
+import { COLORS, SIZES, FONTS, GRADIENTS } from '../constants';
 
 interface ForgotPasswordScreenProps {
   navigation: any;
