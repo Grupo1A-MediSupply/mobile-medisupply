@@ -15,6 +15,13 @@ export interface Client {
   address: string;
   status: 'active' | 'inactive' | 'premium';
   avatar?: string;
+  nit?: string;
+  city?: string;
+  notes?: string;
+  photo?: string;
+  latitude?: number;
+  longitude?: number;
+  clientType?: 'regular' | 'premium';
 }
 
 export interface Product {
@@ -86,6 +93,7 @@ export interface StatsCard {
 
 export type RootStackParamList = {
   Login: undefined;
+  Register: undefined;
   ForgotPassword: undefined;
   Main: undefined;
 };
@@ -97,4 +105,5 @@ export type MainTabParamList = {
   Visits: undefined;
   Returns: undefined;
   NewOrder: undefined;
+  NewClient: undefined;
 };

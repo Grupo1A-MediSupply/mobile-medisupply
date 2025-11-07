@@ -9,6 +9,7 @@ import { COLORS } from '../constants';
 
 // Importar pantallas
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import InventoryScreen from '../screens/InventoryScreen';
@@ -16,6 +17,7 @@ import OrdersScreen from '../screens/OrdersScreen';
 import VisitsScreen from '../screens/VisitsScreen';
 import ReturnsScreen from '../screens/ReturnsScreen';
 import NewOrderScreen from '../screens/NewOrderScreen';
+import NewClientScreen from '../screens/NewClientScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -106,6 +108,11 @@ const MainTabNavigator = () => {
         component={NewOrderScreen}
         options={{ title: 'Nuevo Pedido' }}
       />
+      <Tab.Screen 
+        name="NewClient" 
+        component={NewClientScreen}
+        options={{ title: 'Nuevo Cliente' }}
+      />
     </Tab.Navigator>
   );
 };
@@ -129,6 +136,11 @@ const AppNavigator = () => {
           name="Login" 
           component={LoginScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Register" 
+          component={RegisterScreen}
+          options={{ title: 'Registro' }}
         />
         <Stack.Screen 
           name="ForgotPassword" 

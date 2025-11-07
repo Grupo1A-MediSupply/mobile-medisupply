@@ -217,7 +217,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         <View style={styles.clientsSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Lista de Clientes</Text>
-            <TouchableOpacity style={styles.addClientBtn}>
+            <TouchableOpacity 
+              style={styles.addClientBtn}
+              onPress={() => navigation.navigate('NewClient')}
+            >
               <MaterialIcons name="add" size={16} color={COLORS.white} />
               <Text style={styles.addClientBtnText}>Nuevo</Text>
             </TouchableOpacity>

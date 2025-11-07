@@ -131,6 +131,50 @@ jest.mock('expo-status-bar', () => ({
   StatusBar: 'StatusBar',
 }));
 
+// Mock de expo-image-picker
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  requestCameraPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  launchImageLibraryAsync: jest.fn(() => Promise.resolve({ 
+    canceled: false, 
+    assets: [{ uri: 'file://test-image.jpg' }] 
+  })),
+  launchCameraAsync: jest.fn(() => Promise.resolve({ 
+    canceled: false, 
+    assets: [{ uri: 'file://test-image.jpg' }] 
+  })),
+  MediaTypeOptions: {
+    Images: 'Images',
+    Videos: 'Videos',
+    All: 'All',
+  },
+}));
+
+// Mock de expo-location
+jest.mock('expo-location', () => ({
+  requestForegroundPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  getCurrentPositionAsync: jest.fn(() => Promise.resolve({
+    coords: {
+      latitude: 4.6097,
+      longitude: -74.0817,
+      altitude: null,
+      accuracy: 10,
+      altitudeAccuracy: null,
+      heading: null,
+      speed: null,
+    },
+    timestamp: Date.now(),
+  })),
+  reverseGeocodeAsync: jest.fn(() => Promise.resolve([{
+    street: 'Calle 123',
+    streetNumber: '45-67',
+    city: 'Bogotá',
+    region: 'Cundinamarca',
+    country: 'Colombia',
+    postalCode: '110111',
+  }])),
+}));
+
 // Mock de @expo/vector-icons
 jest.mock('@expo/vector-icons', () => ({
   MaterialIcons: 'MaterialIcons',
