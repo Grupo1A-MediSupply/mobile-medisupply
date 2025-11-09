@@ -18,6 +18,9 @@ import VisitsScreen from '../screens/VisitsScreen';
 import ReturnsScreen from '../screens/ReturnsScreen';
 import NewOrderScreen from '../screens/NewOrderScreen';
 import NewClientScreen from '../screens/NewClientScreen';
+import ClientDetailScreen from '../screens/ClientDetailScreen';
+import SelectClientScreen from '../screens/SelectClientScreen';
+import OrderDetailScreen from '../screens/OrderDetailScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -44,9 +47,6 @@ const MainTabNavigator = () => {
               break;
             case 'Returns':
               iconName = 'assignment-return';
-              break;
-            case 'NewOrder':
-              iconName = 'add-shopping-cart';
               break;
             default:
               iconName = 'help';
@@ -103,16 +103,6 @@ const MainTabNavigator = () => {
         component={ReturnsScreen}
         options={{ title: 'Devoluciones' }}
       />
-      <Tab.Screen 
-        name="NewOrder" 
-        component={NewOrderScreen}
-        options={{ title: 'Nuevo Pedido' }}
-      />
-      <Tab.Screen 
-        name="NewClient" 
-        component={NewClientScreen}
-        options={{ title: 'Nuevo Cliente' }}
-      />
     </Tab.Navigator>
   );
 };
@@ -151,6 +141,31 @@ const AppNavigator = () => {
           name="Main" 
           component={MainTabNavigator}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="NewClient" 
+          component={NewClientScreen}
+          options={{ title: 'Nuevo Cliente' }}
+        />
+        <Stack.Screen 
+          name="ClientDetail" 
+          component={ClientDetailScreen}
+          options={{ title: 'Detalle del Cliente' }}
+        />
+        <Stack.Screen 
+          name="SelectClient" 
+          component={SelectClientScreen}
+          options={{ title: 'Seleccionar Cliente' }}
+        />
+        <Stack.Screen 
+          name="NewOrder" 
+          component={NewOrderScreen}
+          options={{ title: 'Nuevo Pedido' }}
+        />
+        <Stack.Screen 
+          name="OrderDetail" 
+          component={OrderDetailScreen}
+          options={{ title: 'Detalle del Pedido' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

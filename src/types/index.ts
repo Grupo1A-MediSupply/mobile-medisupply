@@ -47,6 +47,21 @@ export interface Order {
   priority: 'high' | 'medium' | 'low';
   createdAt: string;
   updatedAt: string;
+  estimatedDeliveryDate?: string;
+  notes?: string;
+  discount?: number;
+  tax?: number;
+  subtotal?: number;
+  history?: OrderHistory[];
+}
+
+export interface OrderHistory {
+  id: string;
+  status: string;
+  date: string;
+  notes?: string;
+  userId?: string;
+  userName?: string;
 }
 
 export interface OrderProduct {
@@ -96,6 +111,11 @@ export type RootStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   Main: undefined;
+  NewClient: undefined;
+  ClientDetail: { client: Client };
+  SelectClient: undefined;
+  NewOrder: { clientId: string };
+  OrderDetail: { order: Order };
 };
 
 export type MainTabParamList = {
@@ -104,6 +124,4 @@ export type MainTabParamList = {
   Orders: undefined;
   Visits: undefined;
   Returns: undefined;
-  NewOrder: undefined;
-  NewClient: undefined;
 };

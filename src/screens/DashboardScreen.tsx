@@ -122,7 +122,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         </View>
       </View>
       <View style={styles.clientActions}>
-        <TouchableOpacity style={styles.actionBtn}>
+        <TouchableOpacity 
+          style={styles.actionBtn}
+          onPress={() => navigation.navigate('ClientDetail', { client: item })}
+        >
           <MaterialIcons name="edit" size={16} color={COLORS.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn}>

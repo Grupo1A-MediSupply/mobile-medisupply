@@ -163,7 +163,10 @@ const OrdersScreen: React.FC<OrdersScreenProps> = ({ navigation }) => {
       </View>
       
       <View style={styles.orderActions}>
-        <TouchableOpacity style={[styles.actionBtn, styles.primaryBtn]}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, styles.primaryBtn]}
+          onPress={() => navigation.navigate('OrderDetail', { order: item })}
+        >
           <MaterialIcons name="visibility" size={16} color={COLORS.white} />
           <Text style={styles.actionBtnText}>Ver</Text>
         </TouchableOpacity>
@@ -243,7 +246,7 @@ const OrdersScreen: React.FC<OrdersScreenProps> = ({ navigation }) => {
             <Text style={styles.sectionTitle}>Lista de Pedidos</Text>
             <TouchableOpacity 
               style={styles.addOrderBtn}
-              onPress={() => navigation.navigate('NewOrder')}
+              onPress={() => navigation.navigate('SelectClient')}
             >
               <MaterialIcons name="add" size={16} color={COLORS.white} />
               <Text style={styles.addOrderBtnText}>Nuevo Pedido</Text>

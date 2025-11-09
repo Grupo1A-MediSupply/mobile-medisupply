@@ -7,6 +7,12 @@ const mockNavigation = {
   goBack: jest.fn(),
 };
 
+const mockRoute = {
+  params: {
+    clientId: '1',
+  },
+};
+
 describe('NewOrderScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -14,7 +20,7 @@ describe('NewOrderScreen', () => {
 
   it('renders new order screen correctly', () => {
     const screen = render(
-      <NewOrderScreen navigation={mockNavigation} />
+      <NewOrderScreen navigation={mockNavigation} route={mockRoute} />
     );
 
     // Verificar que la pantalla se renderiza
@@ -23,7 +29,7 @@ describe('NewOrderScreen', () => {
 
   it('allows navigation back', () => {
     render(
-      <NewOrderScreen navigation={mockNavigation} />
+      <NewOrderScreen navigation={mockNavigation} route={mockRoute} />
     );
 
     // Verificar que el componente existe
@@ -32,7 +38,7 @@ describe('NewOrderScreen', () => {
 
   it('renders form elements', () => {
     const screen = render(
-      <NewOrderScreen navigation={mockNavigation} />
+      <NewOrderScreen navigation={mockNavigation} route={mockRoute} />
     );
 
     // Verificar que el componente se renderiza

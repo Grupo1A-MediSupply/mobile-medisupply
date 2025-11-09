@@ -175,6 +175,22 @@ jest.mock('expo-location', () => ({
   }])),
 }));
 
+// Mock de Linking y Share de react-native
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Linking: {
+      ...RN.Linking,
+      openURL: jest.fn(() => Promise.resolve()),
+    },
+    Share: {
+      ...RN.Share,
+      share: jest.fn(() => Promise.resolve()),
+    },
+  };
+});
+
 // Mock de @expo/vector-icons
 jest.mock('@expo/vector-icons', () => ({
   MaterialIcons: 'MaterialIcons',

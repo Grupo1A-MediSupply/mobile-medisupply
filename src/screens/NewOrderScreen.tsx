@@ -18,11 +18,16 @@ import { Product, OrderProduct } from '../types';
 
 interface NewOrderScreenProps {
   navigation: any;
+  route: {
+    params: {
+      clientId: string;
+    };
+  };
 }
 
-const NewOrderScreen: React.FC<NewOrderScreenProps> = ({ navigation }) => {
+const NewOrderScreen: React.FC<NewOrderScreenProps> = ({ navigation, route }) => {
   const [cart, setCart] = useState<OrderProduct[]>([]);
-  const [selectedClient, setSelectedClient] = useState('1');
+  const selectedClient = route.params?.clientId || '1';
   const [showProductModal, setShowProductModal] = useState(false);
 
   const products = MOCK_DATA.products;

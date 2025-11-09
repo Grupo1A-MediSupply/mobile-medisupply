@@ -106,6 +106,7 @@ export const MOCK_DATA = {
       phone: '+57 300 123 4567',
       address: 'Calle 123 #45-67, Bogotá',
       status: 'premium' as const,
+      nit: '900123456',
     },
     {
       id: '2',
