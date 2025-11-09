@@ -158,7 +158,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} testID="dashboard-screen">
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>

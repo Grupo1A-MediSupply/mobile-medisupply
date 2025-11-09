@@ -131,6 +131,10 @@ La aplicación incluye datos de ejemplo para demostrar la funcionalidad:
 - Notificaciones push
 - Autenticación real
 
+## Pruebas end-to-end
+
+Se añadió una configuración base con Appium + WebdriverIO. Consulta `docs/e2e-appium.md` para conocer requisitos, generación de builds y comandos disponibles (`npm run test:e2e:android`, `npm run test:e2e:ios`).
+
 ## Notas de Desarrollo
 
 - La aplicación está configurada para funcionar con Expo

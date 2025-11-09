@@ -75,7 +75,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
             {/* Content */}
             <View style={styles.content}>
-              <View style={styles.loginContainer}>
+              <View style={styles.loginContainer} testID="login-screen">
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
                   <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
@@ -94,6 +94,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoCorrect={false}
+                      testID="login-email-input"
                     />
                   </View>
 
@@ -106,6 +107,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       onChangeText={setPassword}
                       secureTextEntry
                       autoCapitalize="none"
+                      testID="login-password-input"
                     />
                   </View>
 
@@ -121,13 +123,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       <Text style={styles.rememberMeText}>Recordarme</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handleForgotPassword}>
+                    <TouchableOpacity
+                      testID="login-forgot-password-button"
+                      onPress={handleForgotPassword}
+                    >
                       <Text style={styles.forgotPassword}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
                   </View>
 
                   {/* Login Button */}
                   <TouchableOpacity
+                    testID="login-submit-button"
                     style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
                     onPress={handleLogin}
                     disabled={isLoading}
