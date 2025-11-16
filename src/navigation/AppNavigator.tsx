@@ -21,6 +21,7 @@ import NewClientScreen from '../screens/NewClientScreen';
 import ClientDetailScreen from '../screens/ClientDetailScreen';
 import SelectClientScreen from '../screens/SelectClientScreen';
 import OrderDetailScreen from '../screens/OrderDetailScreen';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -166,6 +167,11 @@ const AppNavigator = () => {
           name="OrderDetail" 
           component={OrderDetailScreen}
           options={{ title: 'Detalle del Pedido' }}
+        />
+        <Stack.Screen 
+          name="ProductDetail" 
+          component={ProductDetailScreen}
+          options={{ title: 'Detalle del Producto' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -35,6 +35,21 @@ export interface Product {
   supplier: string;
   expiryDate?: string;
   image?: string;
+  images?: string[];
+  wholesalePrice?: number;
+  specifications?: string;
+  lastStockUpdate?: string;
+  stockHistory?: StockMovement[];
+}
+
+export interface StockMovement {
+  id: string;
+  type: 'entry' | 'exit';
+  quantity: number;
+  date: string;
+  reason?: string;
+  userId?: string;
+  userName?: string;
 }
 
 export interface Order {
@@ -116,6 +131,7 @@ export type RootStackParamList = {
   SelectClient: undefined;
   NewOrder: { clientId: string };
   OrderDetail: { order: Order };
+  ProductDetail: { product: Product };
 };
 
 export type MainTabParamList = {
