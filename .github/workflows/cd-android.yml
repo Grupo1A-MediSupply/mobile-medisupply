@@ -1,0 +1,52 @@
+name: CD Android
+
+on:
+  workflow_run:
+    workflows: ["CI Mobile"]  # 👈 nombre EXACTO del workflow de CI
+    types:
+      - completed
+
+jobs:
+  build-android:
+    # Solo correr si CI terminó en success
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          # o: yarn install --frozen-lockfile
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Aquí podrías restaurar tu keystore desde secrets si quisieras firmar
+      # - name: Decode keystore
+      #   run: |
+      #     echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/my-release-key.keystore
+      #   env:
+      #     ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Build Android release APK
+        working-directory: android
+        run: |
+          ./gradlew assembleRelease
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/release/*.apk

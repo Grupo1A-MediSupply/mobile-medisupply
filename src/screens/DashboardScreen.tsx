@@ -23,7 +23,21 @@ interface DashboardScreenProps {
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [filter, setFilter] = useState('all');
-  const [clients, setClients] = useState<Client[]>(MOCK_DATA.clients);
+  const [clients] = useState<Client[]>(MOCK_DATA.clients);
+
+  // Filtrar clientes según búsqueda y filtro de estado
+  const filteredClients = clients.filter(client => {
+    // Filtro por estado
+    const statusMatch = filter === 'all' || client.status === filter;
+    
+    // Filtro por búsqueda (nombre, email o dirección)
+    const searchMatch = searchText === '' || 
+      client.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      (client.address && client.address.toLowerCase().includes(searchText.toLowerCase()));
+    
+    return statusMatch && searchMatch;
+  });
 
   const statsCards: StatsCard[] = [
     {
@@ -160,6 +174,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
@@ -229,13 +244,23 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           
-          <FlatList
-            data={clients}
-            renderItem={renderClientItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+          {filteredClients.length > 0 ? (
+            <FlatList
+              data={filteredClients}
+              renderItem={renderClientItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="search-off" size={48} color={COLORS.gray} />
+              <Text style={styles.emptyStateText}>No se encontraron clientes</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Intenta cambiar los filtros o la búsqueda
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Quick Visits Section */}
@@ -581,6 +606,25 @@ const styles = StyleSheet.create({
   },
   visitPriorityLow: {
     backgroundColor: COLORS.success,
+  },
+  // Empty State Styles
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    marginTop: 20,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: COLORS.gray,
+    textAlign: 'center',
   },
 });
 

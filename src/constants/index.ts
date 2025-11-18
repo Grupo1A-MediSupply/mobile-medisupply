@@ -107,6 +107,8 @@ export const MOCK_DATA = {
       address: 'Calle 123 #45-67, Bogotá',
       status: 'premium' as const,
       nit: '900123456',
+      latitude: 4.6097,
+      longitude: -74.0817,
     },
     {
       id: '2',
@@ -115,6 +117,8 @@ export const MOCK_DATA = {
       phone: '+57 1 234 5678',
       address: 'Carrera 15 #93-20, Bogotá',
       status: 'active' as const,
+      latitude: 4.6500,
+      longitude: -74.0500,
     },
     {
       id: '3',
@@ -123,6 +127,8 @@ export const MOCK_DATA = {
       phone: '+57 310 987 6543',
       address: 'Avenida 68 #25-30, Bogotá',
       status: 'inactive' as const,
+      latitude: 4.7000,
+      longitude: -74.1000,
     },
   ],
   products: [

@@ -2,21 +2,21 @@ name: 🚀 Deploy to AWS S3 + CloudFront v1
 
 # This workflow is used to deploy the React Native web app to AWS S3 and CloudFront
 on:
-  push:
-        branches: [ '**' ]
-  pull_request:
-        branches: [ '**' ]
+  ##push:
+   #     branches: [ '**' ]
+  ##pull_request:
+   #     branches: [ '**' ]
   
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
+    #inputs:
+      #environment:
+      #  description: 'Environment to deploy to'
+      #  required: true
+      #  default: 'staging'
+      #  type: choice
+      #  options:
+      #  - staging
+      #  - production
 
 env:
   AWS_REGION: us-east-1

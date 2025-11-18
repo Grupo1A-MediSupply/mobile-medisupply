@@ -1,0 +1,58 @@
+name: CD iOS
+
+on:
+  workflow_run:
+    workflows: ["CI Mobile"]  # 👈 mismo nombre del workflow de CI
+    types:
+      - completed
+
+jobs:
+  build-ios:
+    # Solo correr si CI terminó en success
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-latest    # iOS necesita macOS sí o sí
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          # o yarn install --frozen-lockfile
+
+      - name: Install pods
+        working-directory: ios
+        run: |
+          pod install --repo-update
+
+      # Aquí normalmente iría configuración de certificados / signing.
+      # Para una demo, puedes usar configuración de desarrollo o export simple.
+
+      - name: Build iOS .ipa
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -workspace MediSupply.xcworkspace \
+            -scheme MediSupply \
+            -configuration Release \
+            -archivePath build/MediSupply.xcarchive \
+            archive
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/MediSupply.xcarchive \
+            -exportOptionsPlist exportOptions.plist \
+            -exportPath build
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ios/build/*.ipa

@@ -1,0 +1,32 @@
+name: CI Mobile
+
+on:
+  push:
+    branches: [ main, develop, auth ]
+  pull_request:
+    branches: [ main, develop, auth ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'        # o la versión que uses
+          cache: 'npm'              # o 'yarn'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          # o: yarn install --frozen-lockfile
+
+      - name: Run unit tests
+        run: |
+          npm test
+          # o: npm run test:ci
+          # o: yarn test

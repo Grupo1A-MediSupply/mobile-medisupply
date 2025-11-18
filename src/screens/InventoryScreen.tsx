@@ -31,7 +31,6 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
-  const [viewMode, setViewMode] = useState<'grid' | 'cards'>('cards');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
@@ -881,29 +880,8 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* View Controls */}
-        <View style={styles.viewControls}>
-          <View style={styles.viewOptions}>
-            <TouchableOpacity
-              style={[styles.viewOption, viewMode === 'grid' && styles.viewOptionActive]}
-              onPress={() => setViewMode('grid')}
-            >
-              <MaterialIcons name="grid-view" size={16} color={viewMode === 'grid' ? COLORS.white : COLORS.gray} />
-              <Text style={[styles.viewOptionText, viewMode === 'grid' && styles.viewOptionTextActive]}>
-                Cuadrícula
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.viewOption, viewMode === 'cards' && styles.viewOptionActive]}
-              onPress={() => setViewMode('cards')}
-            >
-              <MaterialIcons name="view-module" size={16} color={viewMode === 'cards' ? COLORS.white : COLORS.gray} />
-              <Text style={[styles.viewOptionText, viewMode === 'cards' && styles.viewOptionTextActive]}>
-                Tarjetas
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
+        {/* Product Count */}
+        <View style={styles.productCountContainer}>
           <Text style={styles.productCount}>
             {filteredAndSortedProducts.length} {filteredAndSortedProducts.length === 1 ? 'producto' : 'productos'}
           </Text>
@@ -922,15 +900,23 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           
-          <FlatList
-            data={filteredAndSortedProducts}
-            renderItem={renderProductItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            numColumns={viewMode === 'grid' ? 2 : 1}
-            columnWrapperStyle={viewMode === 'grid' ? styles.gridRow : undefined}
-          />
+          {filteredAndSortedProducts.length > 0 ? (
+            <FlatList
+              data={filteredAndSortedProducts}
+              renderItem={renderProductItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="inventory-2" size={48} color={COLORS.gray} />
+              <Text style={styles.emptyStateText}>No se encontraron productos</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Intenta cambiar los filtros o la búsqueda
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -1079,41 +1065,12 @@ const styles = StyleSheet.create({
     color: COLORS.black,
     flex: 1,
   },
-  viewControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  productCountContainer: {
     backgroundColor: COLORS.light,
     borderRadius: 8,
     padding: 15,
     marginBottom: 20,
-  },
-  viewOptions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  viewOption: {
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 6,
-  },
-  viewOptionActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  viewOptionText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: COLORS.gray,
-    marginLeft: 4,
-  },
-  viewOptionTextActive: {
-    color: COLORS.white,
   },
   productCount: {
     fontSize: 14,
@@ -1256,8 +1213,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  gridRow: {
-    justifyContent: 'space-between',
+  // Empty State Styles
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    marginTop: 20,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: COLORS.gray,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,

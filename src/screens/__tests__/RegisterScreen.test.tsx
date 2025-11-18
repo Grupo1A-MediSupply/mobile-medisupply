@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import RegisterScreen from '../RegisterScreen';
 
@@ -283,28 +283,48 @@ describe('RegisterScreen', () => {
     const confirmPasswordInput = getByPlaceholderText('Confirmar contraseña');
     const registerButton = getByText('Registrarse');
 
-    fireEvent.changeText(fullNameInput, 'Juan Pérez');
-    fireEvent.changeText(emailInput, 'test@example.com');
-    fireEvent.changeText(phoneInput, '3001234567');
-    fireEvent.changeText(companyInput, 'Hospital San Rafael');
-    fireEvent.changeText(usernameInput, 'juanperez');
-    fireEvent.changeText(passwordInput, 'Password123');
-    fireEvent.changeText(confirmPasswordInput, 'Password123');
-    fireEvent.press(registerButton);
+    // Cambiar los textos uno por uno dentro de act
+    await act(async () => {
+      fireEvent.changeText(fullNameInput, 'Juan Pérez');
+    });
+    await act(async () => {
+      fireEvent.changeText(emailInput, 'test@example.com');
+    });
+    await act(async () => {
+      fireEvent.changeText(phoneInput, '3001234567');
+    });
+    await act(async () => {
+      fireEvent.changeText(companyInput, 'Hospital San Rafael');
+    });
+    await act(async () => {
+      fireEvent.changeText(usernameInput, 'juanperez');
+    });
+    await act(async () => {
+      fireEvent.changeText(passwordInput, 'Password123');
+    });
+    await act(async () => {
+      fireEvent.changeText(confirmPasswordInput, 'Password123');
+    });
 
-    // Avanzar el timer
-    jest.advanceTimersByTime(1500);
+    // Presionar el botón
+    await act(async () => {
+      fireEvent.press(registerButton);
+    });
 
-    await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith(
-        'Éxito',
-        'Registro completado correctamente',
-        expect.any(Array)
-      );
-    }, { timeout: 2000 });
+    // Avanzar el timer dentro de act
+    await act(async () => {
+      jest.advanceTimersByTime(1500);
+    });
+
+    // Verificar que se llamó Alert.alert
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Éxito',
+      'Registro completado correctamente',
+      expect.any(Array)
+    );
 
     jest.useRealTimers();
-  });
+  }, 10000);
 
   it('shows loading state during registration', async () => {
     jest.useFakeTimers();
