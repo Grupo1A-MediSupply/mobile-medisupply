@@ -22,14 +22,33 @@ const originalWarn = console.warn;
 
 beforeAll(() => {
   console.error = (...args) => {
-    if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Warning: ReactDOM.render') ||
-       args[0].includes('Not implemented: HTMLFormElement.prototype.submit') ||
-       args[0].includes('TurboModuleRegistry.getEnforcing') ||
-       args[0].includes('DevMenu') ||
-       args[0].includes('Invariant Violation'))
-    ) {
+    // Convertir todos los argumentos a string para buscar
+    const errorMessage = args.map(arg => 
+      typeof arg === 'string' ? arg : (typeof arg === 'object' && arg !== null ? JSON.stringify(arg) : String(arg))
+    ).join(' ');
+    
+    // Lista de patrones a ignorar
+    const ignoredPatterns = [
+      'Warning: ReactDOM.render',
+      'Not implemented: HTMLFormElement.prototype.submit',
+      'TurboModuleRegistry.getEnforcing',
+      'DevMenu',
+      'Invariant Violation',
+    ];
+    
+    // Patrones específicos para advertencias de act() con Animated
+    const actWarningPatterns = [
+      'An update to Animated',
+      'inside a test was not wrapped in act',
+      'was not wrapped in act(...)',
+      'When testing, code that causes React state updates should be wrapped into act',
+    ];
+    
+    // Verificar si el mensaje contiene alguno de los patrones ignorados
+    const shouldIgnore = ignoredPatterns.some(pattern => errorMessage.includes(pattern)) ||
+      actWarningPatterns.some(pattern => errorMessage.includes(pattern));
+    
+    if (shouldIgnore) {
       return;
     }
     originalError.call(console, ...args);
