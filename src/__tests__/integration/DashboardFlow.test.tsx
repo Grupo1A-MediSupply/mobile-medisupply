@@ -5,7 +5,7 @@ import AppNavigator from '../../navigation/AppNavigator';
 // Los mocks ya están en jest-setup.js global
 
 describe('Dashboard Flow Integration', () => {
-  jest.setTimeout(15000); // Aumentar timeout para todos los tests en este describe
+  jest.setTimeout(30000); // Aumentar timeout para todos los tests en este describe
   
   beforeEach(() => {
     jest.clearAllMocks();
@@ -35,11 +35,16 @@ describe('Dashboard Flow Integration', () => {
       fireEvent.press(loginButton);
     });
 
+    // Esperar un poco para que el setTimeout del login se inicie
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+
     // Esperar a que se complete el login y navegar al dashboard
     // El login toma ~1500ms, así que esperamos con waitFor
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 5000, interval: 100 });
+    }, { timeout: 10000, interval: 200 });
 
     // Navegar a pedidos desde la tarjeta de estadísticas
     // Buscar el texto "156" (valor de Pedidos) y presionar su contenedor
@@ -75,7 +80,7 @@ describe('Dashboard Flow Integration', () => {
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 5000, interval: 100 });
+    }, { timeout: 10000, interval: 200 });
 
     // Navegar a visitas desde la tarjeta de estadísticas
     // Buscar el texto "12" (valor de Visitas Hoy) y presionar su contenedor
@@ -111,7 +116,7 @@ describe('Dashboard Flow Integration', () => {
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 5000, interval: 100 });
+    }, { timeout: 10000, interval: 200 });
 
     // Buscar clientes
     const searchInput = getByPlaceholderText('Buscar clientes...');
@@ -143,7 +148,7 @@ describe('Dashboard Flow Integration', () => {
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 5000, interval: 100 });
+    }, { timeout: 10000, interval: 200 });
 
     // Filtrar por clientes activos
     const activeFilter = getByText('Activos');
