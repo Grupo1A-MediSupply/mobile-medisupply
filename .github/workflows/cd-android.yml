@@ -1,20 +1,17 @@
 name: CD Android
 
 on:
-  push:
-    branches: ['feature/auth']  # Se ejecuta en todas las ramas
-  
   workflow_run:
     workflows: ["CI Mobile"]  # 👈 nombre EXACTO del workflow de CI
     types: [completed]
-    branches: ['feature/auth']
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
   build-android:
-    # Solo correr si el CI terminó exitosamente Y es una rama permitida
-    # Verifica: main, develop, feature/auth, o ramas que comienzan con feature/auth/
-    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'feature/auth' || contains(github.event.workflow_run.head_branch, 'feature/auth/')) }}
+    # Solo correr si:
+    # - Es ejecución manual (workflow_dispatch), O
+    # - El CI terminó exitosamente Y es una rama permitida
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'feature/auth' || contains(github.event.workflow_run.head_branch, 'feature/auth/'))) }}
     runs-on: ubuntu-latest
 
     steps:
