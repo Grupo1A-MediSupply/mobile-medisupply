@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor, cleanup } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import AppNavigator from '../../navigation/AppNavigator';
 
 // Los mocks ya están en jest-setup.js global
@@ -9,11 +9,7 @@ describe('Dashboard Flow Integration', () => {
   
   beforeEach(() => {
     jest.clearAllMocks();
-    // No limpiar timers para permitir que setTimeout del login funcione
-  });
-  
-  afterEach(() => {
-    cleanup();
+    jest.useRealTimers();
   });
   
   it('navigates to orders screen from dashboard', async () => {
