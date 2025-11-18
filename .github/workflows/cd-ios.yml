@@ -8,16 +8,31 @@ on:
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug workflow_run info
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Workflow run status: ${{ github.event.workflow_run.status }}"
+          echo "Current ref: ${{ github.ref }}"
+          echo "Current ref name: ${{ github.ref_name }}"
+  
   build-ios:
+    runs-on: macos-latest    # iOS necesita macOS sí o sí
+    needs: debug
     # Solo correr si:
     # - Es ejecución manual (workflow_dispatch), O
     # - El CI terminó exitosamente Y es una rama permitida
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'feature/auth' || contains(github.event.workflow_run.head_branch, 'feature/auth/'))) }}
-    runs-on: macos-latest    # iOS necesita macOS sí o sí
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
