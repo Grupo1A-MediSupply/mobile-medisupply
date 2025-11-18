@@ -60,9 +60,14 @@ jobs:
             
             console.log(`Waiting for CI Mobile workflow to complete on ${branch}...`);
             
+            // Wait a bit for the CI workflow to start
+            console.log('Waiting 15 seconds for CI workflow to start...');
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            
             // Wait for the workflow run to complete
             let attempts = 0;
             const maxAttempts = 60; // 10 minutes max (60 * 10 seconds)
+            const commitSha = context.sha;
             
             while (attempts < maxAttempts) {
               // Get the latest workflow runs for this workflow file
@@ -71,34 +76,37 @@ jobs:
                 repo,
                 workflow_id: workflowFileName,
                 branch: branch,
-                per_page: 5
+                per_page: 10
               });
               
               if (runs.data.workflow_runs.length > 0) {
-                // Find the most recent run for this branch and commit
-                const commitSha = context.sha;
+                // Find the run for this specific commit
                 const workflowRun = runs.data.workflow_runs.find(
-                  run => run.head_sha === commitSha || run.head_branch === branch
-                ) || runs.data.workflow_runs[0];
+                  run => run.head_sha === commitSha
+                );
                 
-                console.log(`Workflow run status: ${workflowRun.status}, conclusion: ${workflowRun.conclusion || 'pending'}, head_sha: ${workflowRun.head_sha}`);
-                
-                if (workflowRun.status === 'completed') {
-                  if (workflowRun.conclusion === 'success') {
-                    console.log('✅ CI workflow completed successfully!');
-                    core.setOutput('ci-success', 'true');
-                    return;
+                if (workflowRun) {
+                  console.log(`Found workflow run for commit ${commitSha.substring(0, 7)}: status=${workflowRun.status}, conclusion=${workflowRun.conclusion || 'pending'}`);
+                  
+                  if (workflowRun.status === 'completed') {
+                    if (workflowRun.conclusion === 'success') {
+                      console.log('✅ CI workflow completed successfully!');
+                      core.setOutput('ci-success', 'true');
+                      return;
+                    } else {
+                      console.log(`❌ CI workflow failed with conclusion: ${workflowRun.conclusion}`);
+                      core.setOutput('ci-success', 'false');
+                      core.setFailed(`CI workflow failed with conclusion: ${workflowRun.conclusion}`);
+                      return;
+                    }
                   } else {
-                    console.log(`❌ CI workflow failed with conclusion: ${workflowRun.conclusion}`);
-                    core.setOutput('ci-success', 'false');
-                    core.setFailed(`CI workflow failed with conclusion: ${workflowRun.conclusion}`);
-                    return;
+                    console.log(`Workflow still running (status: ${workflowRun.status}), waiting...`);
                   }
                 } else {
-                  console.log(`Workflow still running (status: ${workflowRun.status}), waiting...`);
+                  console.log(`No workflow run found for commit ${commitSha.substring(0, 7)} yet, waiting...`);
                 }
               } else {
-                console.log('No workflow run found yet, waiting...');
+                console.log('No workflow runs found yet, waiting...');
               }
               
               attempts++;
@@ -154,6 +162,14 @@ jobs:
         run: |
           npm ci
           # o: yarn install --frozen-lockfile
+
+      - name: Install Expo CLI
+        run: |
+          npm install -g expo-cli@latest
+
+      - name: Generate native Android project
+        run: |
+          npx expo prebuild --platform android --clean
 
       - name: Set up JDK
         uses: actions/setup-java@v4
