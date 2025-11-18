@@ -3,12 +3,12 @@ name: CD Android
 on:
   push:
     branches: ['feature/auth']  # Se ejecuta en todas las ramas
-  pull_request:
-    branches: ['feature/auth']  # Se ejecuta en todas las ramas
+  
   workflow_run:
     workflows: ["CI Mobile"]  # 👈 nombre EXACTO del workflow de CI
-    types:
-      - completed
+    types: [completed]
+    branches: ['feature/auth']
+  workflow_dispatch: # Permite ejecución manual
 
 jobs:
   build-android:
