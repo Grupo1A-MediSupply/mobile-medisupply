@@ -1,19 +1,19 @@
 import React from 'react';
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import AppNavigator from '../../navigation/AppNavigator';
 
 // Los mocks ya están en jest-setup.js global
 
 describe('Dashboard Flow Integration', () => {
-  jest.setTimeout(30000); // Aumentar timeout para todos los tests en este describe
+  jest.setTimeout(20000); // Aumentar timeout para todos los tests en este describe
   
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useRealTimers();
+    jest.clearAllTimers();
   });
   
   afterEach(() => {
-    jest.useRealTimers();
+    jest.clearAllTimers();
   });
   
   it('navigates to orders screen from dashboard', async () => {
@@ -26,25 +26,15 @@ describe('Dashboard Flow Integration', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    await act(async () => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-      fireEvent.changeText(passwordInput, 'password123');
-    });
-
-    await act(async () => {
-      fireEvent.press(loginButton);
-    });
-
-    // Esperar un poco para que el setTimeout del login se inicie
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    });
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.press(loginButton);
 
     // Esperar a que se complete el login y navegar al dashboard
     // El login toma ~1500ms, así que esperamos con waitFor
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 10000, interval: 200 });
+    }, { timeout: 8000, interval: 100 });
 
     // Navegar a pedidos desde la tarjeta de estadísticas
     // Buscar el texto "156" (valor de Pedidos) y presionar su contenedor
@@ -68,19 +58,14 @@ describe('Dashboard Flow Integration', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    await act(async () => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-      fireEvent.changeText(passwordInput, 'password123');
-    });
-
-    await act(async () => {
-      fireEvent.press(loginButton);
-    });
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.press(loginButton);
 
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 10000, interval: 200 });
+    }, { timeout: 8000, interval: 100 });
 
     // Navegar a visitas desde la tarjeta de estadísticas
     // Buscar el texto "12" (valor de Visitas Hoy) y presionar su contenedor
@@ -104,19 +89,14 @@ describe('Dashboard Flow Integration', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    await act(async () => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-      fireEvent.changeText(passwordInput, 'password123');
-    });
-
-    await act(async () => {
-      fireEvent.press(loginButton);
-    });
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.press(loginButton);
 
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 10000, interval: 200 });
+    }, { timeout: 8000, interval: 100 });
 
     // Buscar clientes
     const searchInput = getByPlaceholderText('Buscar clientes...');
@@ -136,19 +116,14 @@ describe('Dashboard Flow Integration', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    await act(async () => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-      fireEvent.changeText(passwordInput, 'password123');
-    });
-
-    await act(async () => {
-      fireEvent.press(loginButton);
-    });
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'password123');
+    fireEvent.press(loginButton);
 
     // Esperar a que se complete el login y navegar al dashboard
     await waitFor(() => {
       expect(getByText('¡Bienvenido de vuelta!')).toBeTruthy();
-    }, { timeout: 10000, interval: 200 });
+    }, { timeout: 8000, interval: 100 });
 
     // Filtrar por clientes activos
     const activeFilter = getByText('Activos');
