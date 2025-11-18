@@ -5,11 +5,17 @@ on:
     workflows: ["CI Mobile"]  # 👈 nombre EXACTO del workflow de CI
     types:
       - completed
+    branches:
+      - main
+      - develop
+      - 'feature/auth'
+      - 'feature/auth/**'
 
 jobs:
   build-android:
-    # Solo correr si CI terminó en success
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Solo correr si el CI terminó exitosamente Y es una rama permitida
+    # El filtro 'branches' en workflow_run ya limita las ramas, pero verificamos también en el if
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'feature/auth' || contains(github.event.workflow_run.head_branch, 'feature/auth/')) }}
     runs-on: ubuntu-latest
 
     steps:

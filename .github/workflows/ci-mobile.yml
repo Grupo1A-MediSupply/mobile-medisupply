@@ -2,9 +2,9 @@ name: CI Mobile
 
 on:
   push:
-    branches: [ main, develop, feature/auth ]
+    branches: ['**']  # Se ejecuta en todas las ramas
   pull_request:
-    branches: [ main, develop, feature/auth ]
+    branches: ['**']  # Se ejecuta en todas las ramas
 
 jobs:
   test:
