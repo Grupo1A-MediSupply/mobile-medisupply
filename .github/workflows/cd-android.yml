@@ -1,9 +1,12 @@
 name: CD Android
 
 on:
+  push:
+    branches: [ main, develop, feature/auth ]
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]
+    branches: [ main, develop, feature/auth ]
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
