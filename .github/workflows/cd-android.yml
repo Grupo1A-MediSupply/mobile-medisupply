@@ -55,45 +55,33 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const ref = context.ref;
-            const workflowName = 'CI Mobile';
+            const branch = ref.replace('refs/heads/', '');
+            const workflowFileName = '.github/workflows/ci-mobile.yml';
             
-            console.log(`Waiting for workflow "${workflowName}" to complete on ${ref}...`);
-            
-            // Get workflow ID
-            const workflows = await github.rest.actions.listWorkflowsForRepo({
-              owner,
-              repo
-            });
-            
-            const ciWorkflow = workflows.data.workflows.find(
-              w => w.name === workflowName && w.state === 'active'
-            );
-            
-            if (!ciWorkflow) {
-              throw new Error(`Workflow "${workflowName}" not found`);
-            }
-            
-            console.log(`Found workflow ID: ${ciWorkflow.id}`);
+            console.log(`Waiting for CI Mobile workflow to complete on ${branch}...`);
             
             // Wait for the workflow run to complete
-            let workflowRun = null;
             let attempts = 0;
             const maxAttempts = 60; // 10 minutes max (60 * 10 seconds)
             
             while (attempts < maxAttempts) {
-              // Get the latest workflow run for this ref
+              // Get the latest workflow runs for this workflow file
               const runs = await github.rest.actions.listWorkflowRuns({
                 owner,
                 repo,
-                workflow_id: ciWorkflow.id,
-                branch: ref.replace('refs/heads/', ''),
-                per_page: 1
+                workflow_id: workflowFileName,
+                branch: branch,
+                per_page: 5
               });
               
               if (runs.data.workflow_runs.length > 0) {
-                workflowRun = runs.data.workflow_runs[0];
+                // Find the most recent run for this branch and commit
+                const commitSha = context.sha;
+                const workflowRun = runs.data.workflow_runs.find(
+                  run => run.head_sha === commitSha || run.head_branch === branch
+                ) || runs.data.workflow_runs[0];
                 
-                console.log(`Workflow run status: ${workflowRun.status}, conclusion: ${workflowRun.conclusion || 'pending'}`);
+                console.log(`Workflow run status: ${workflowRun.status}, conclusion: ${workflowRun.conclusion || 'pending'}, head_sha: ${workflowRun.head_sha}`);
                 
                 if (workflowRun.status === 'completed') {
                   if (workflowRun.conclusion === 'success') {
@@ -106,6 +94,8 @@ jobs:
                     core.setFailed(`CI workflow failed with conclusion: ${workflowRun.conclusion}`);
                     return;
                   }
+                } else {
+                  console.log(`Workflow still running (status: ${workflowRun.status}), waiting...`);
                 }
               } else {
                 console.log('No workflow run found yet, waiting...');
