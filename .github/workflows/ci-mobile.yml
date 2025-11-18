@@ -2,9 +2,9 @@ name: CI Mobile
 
 on:
   push:
-    branches: [ main, develop, auth ]
+    branches: [ main, develop, feature/auth ]
   pull_request:
-    branches: [ main, develop, auth ]
+    branches: [ main, develop, feature/auth ]
 
 jobs:
   test:
