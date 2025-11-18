@@ -4,11 +4,6 @@ on:
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]
-    branches:
-      - main
-      - develop
-      - 'feature/auth'
-      - 'feature/auth/**'
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
@@ -29,7 +24,6 @@ jobs:
             echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
             echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
             echo "Workflow run status: ${{ github.event.workflow_run.status }}"
-            echo "Workflow run name: ${{ github.event.workflow_run.name }}"
             echo ""
             echo "=== CONDITION CHECK ==="
             if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
