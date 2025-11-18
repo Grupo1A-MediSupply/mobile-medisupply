@@ -1,8 +1,6 @@
 name: CD Android
 
 on:
-  push:
-    branches: [ main, develop, feature/auth ]
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]
@@ -49,7 +47,6 @@ jobs:
     # Solo correr si:
     # - Es ejecución manual (workflow_dispatch), O
     # - El CI terminó exitosamente Y es una rama permitida (workflow_run)
-    # NO se ejecuta en push directo para evitar ejecución en paralelo con CI
     if: |
       github.event_name == 'workflow_dispatch' || 
       (github.event_name == 'workflow_run' && 
