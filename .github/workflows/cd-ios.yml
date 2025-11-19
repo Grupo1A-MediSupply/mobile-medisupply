@@ -145,10 +145,23 @@ jobs:
       - name: Build iOS .ipa (for physical devices)
         working-directory: ios
         run: |
+          # Verificar qué workspace se generó
+          WORKSPACE=$(ls *.xcworkspace 2>/dev/null | head -1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "Error: No se encontró ningún .xcworkspace"
+            ls -la
+            exit 1
+          fi
+          
+          # Extraer el nombre del scheme del workspace (sin la extensión)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          echo "Usando workspace: $WORKSPACE"
+          echo "Usando scheme: $SCHEME"
+          
           # Compilar el .app para dispositivos físicos (sin certificados)
           xcodebuild \
-            -workspace reactMobile.xcworkspace \
-            -scheme reactMobile \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build/DerivedData-iphoneos \
@@ -174,19 +187,32 @@ jobs:
           
           # Crear el .ipa
           cd build
-          zip -r reactMobile.ipa Payload
+          zip -r medisupply.ipa Payload
           rm -rf Payload
           cd ..
           
-          echo "✅ IPA creado en: build/reactMobile.ipa"
+          echo "✅ IPA creado en: build/medisupply.ipa"
 
       - name: Build iOS .app (for simulator)
         working-directory: ios
         run: |
+          # Verificar qué workspace se generó
+          WORKSPACE=$(ls *.xcworkspace 2>/dev/null | head -1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "Error: No se encontró ningún .xcworkspace"
+            ls -la
+            exit 1
+          fi
+          
+          # Extraer el nombre del scheme del workspace (sin la extensión)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          echo "Usando workspace: $WORKSPACE"
+          echo "Usando scheme: $SCHEME"
+          
           # Compilar el .app para simulador
           xcodebuild \
-            -workspace reactMobile.xcworkspace \
-            -scheme reactMobile \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphonesimulator \
             -derivedDataPath build/DerivedData-simulator \
@@ -205,18 +231,18 @@ jobs:
           echo "App para simulador encontrada en: $SIM_APP_PATH"
           
           # Copiar el .app al directorio build para fácil acceso
-          cp -R "$SIM_APP_PATH" build/reactMobile-simulator.app
+          cp -R "$SIM_APP_PATH" build/medisupply-simulator.app
           
-          echo "✅ App para simulador creada en: build/reactMobile-simulator.app"
+          echo "✅ App para simulador creada en: build/medisupply-simulator.app"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: ios/build/reactMobile.ipa
+          path: ios/build/medisupply.ipa
 
       - name: Upload Simulator App artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-simulator-app
-          path: ios/build/reactMobile-simulator.app
+          path: ios/build/medisupply-simulator.app
