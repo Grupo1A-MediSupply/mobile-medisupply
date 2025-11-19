@@ -1,58 +1,122 @@
 name: CD iOS
 
 on:
+  push:
+    branches: [ main, develop, feature/auth, release ]
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
-  debug:
+  wait-for-ci:
     runs-on: ubuntu-latest
+    outputs:
+      ci-success: ${{ steps.set-output.outputs.ci-success }}
     steps:
-      - name: Debug info
+      - name: Wait for CI Mobile workflow to complete
+        id: wait-ci
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = context.ref;
+            const branch = ref.replace('refs/heads/', '');
+            const workflowFileName = '.github/workflows/ci-mobile.yml';
+            
+            console.log(`Waiting for CI Mobile workflow to complete on ${branch}...`);
+            
+            // Wait a bit for the CI workflow to start
+            console.log('Waiting 15 seconds for CI workflow to start...');
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            
+            // Wait for the workflow run to complete
+            let attempts = 0;
+            const maxAttempts = 60; // 10 minutes max (60 * 10 seconds)
+            const commitSha = context.sha;
+            
+            while (attempts < maxAttempts) {
+              // Get the latest workflow runs for this workflow file
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: workflowFileName,
+                branch: branch,
+                per_page: 10
+              });
+              
+              if (runs.data.workflow_runs.length > 0) {
+                // Find the run for this specific commit
+                const workflowRun = runs.data.workflow_runs.find(
+                  run => run.head_sha === commitSha
+                );
+                
+                if (workflowRun) {
+                  console.log(`Found workflow run for commit ${commitSha.substring(0, 7)}: status=${workflowRun.status}, conclusion=${workflowRun.conclusion || 'pending'}`);
+                  
+                  if (workflowRun.status === 'completed') {
+                    if (workflowRun.conclusion === 'success') {
+                      console.log('✅ CI workflow completed successfully!');
+                      core.setOutput('ci-success', 'true');
+                      return;
+                    } else {
+                      console.log(`❌ CI workflow failed with conclusion: ${workflowRun.conclusion}`);
+                      core.setOutput('ci-success', 'false');
+                      core.setFailed(`CI workflow failed with conclusion: ${workflowRun.conclusion}`);
+                      return;
+                    }
+                  } else {
+                    console.log(`Workflow still running (status: ${workflowRun.status}), waiting...`);
+                  }
+                } else {
+                  console.log(`No workflow run found for commit ${commitSha.substring(0, 7)} yet, waiting...`);
+                }
+              } else {
+                console.log('No workflow runs found yet, waiting...');
+              }
+              
+              attempts++;
+              if (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+              }
+            }
+            
+            core.setFailed('Timeout waiting for CI workflow to complete');
+            core.setOutput('ci-success', 'false');
+      
+      - name: Set output
+        id: set-output
         run: |
-          echo "=== DEBUG INFO ==="
-          echo "Event name: ${{ github.event_name }}"
-          echo "Current ref: ${{ github.ref }}"
-          echo "Current ref name: ${{ github.ref_name }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          if [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo ""
-            echo "=== WORKFLOW_RUN INFO ==="
-            echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
-            echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
-            echo "Workflow run status: ${{ github.event.workflow_run.status }}"
-            echo ""
-            echo "=== CONDITION CHECK ==="
-            if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-              echo "✅ CI was successful"
-            else
-              echo "❌ CI was NOT successful (conclusion: ${{ github.event.workflow_run.conclusion }})"
-            fi
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-            echo "Branch: $BRANCH"
-            if [ "$BRANCH" == "main" ] || [ "$BRANCH" == "develop" ] || [ "$BRANCH" == "feature/auth" ] || [[ "$BRANCH" == feature/auth/* ]]; then
-              echo "✅ Branch is allowed"
-            else
-              echo "❌ Branch is NOT allowed"
-            fi
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "ci-success=${{ steps.wait-ci.outputs.ci-success }}" >> $GITHUB_OUTPUT
+          else
+            echo "ci-success=true" >> $GITHUB_OUTPUT
           fi
-  
+
   build-ios:
     runs-on: macos-latest    # iOS necesita macOS sí o sí
-    needs: debug
+    needs: wait-for-ci
     # Solo correr si:
     # - Es ejecución manual (workflow_dispatch), O
-    # - El CI terminó exitosamente Y es una rama permitida
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'feature/auth' || contains(github.event.workflow_run.head_branch, 'feature/auth/'))) }}
+    # - El CI terminó exitosamente Y es una rama permitida (workflow_run), O
+    # - Es push Y el CI terminó exitosamente (wait-for-ci)
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      (github.event_name == 'workflow_run' && 
+       github.event.workflow_run.conclusion == 'success' && 
+       (github.event.workflow_run.head_branch == 'main' || 
+        github.event.workflow_run.head_branch == 'develop' || 
+        github.event.workflow_run.head_branch == 'feature/auth' || 
+        github.event.workflow_run.head_branch == 'release' ||
+        startsWith(github.event.workflow_run.head_branch, 'feature/auth/'))) ||
+      (github.event_name == 'push' && needs.wait-for-ci.outputs.ci-success == 'true')
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
+          ref: ${{ github.event.workflow_run.head_branch || github.ref_name || github.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -65,32 +129,94 @@ jobs:
           npm ci
           # o yarn install --frozen-lockfile
 
+      - name: Install Expo CLI
+        run: |
+          npm install -g expo-cli@latest
+
+      - name: Generate native iOS project
+        run: |
+          npx expo prebuild --platform ios --clean
+
       - name: Install pods
         working-directory: ios
         run: |
           pod install --repo-update
 
-      # Aquí normalmente iría configuración de certificados / signing.
-      # Para una demo, puedes usar configuración de desarrollo o export simple.
-
-      - name: Build iOS .ipa
+      - name: Build iOS .ipa (for physical devices)
         working-directory: ios
         run: |
+          # Compilar el .app para dispositivos físicos (sin certificados)
           xcodebuild \
-            -workspace MediSupply.xcworkspace \
-            -scheme MediSupply \
+            -workspace reactMobile.xcworkspace \
+            -scheme reactMobile \
             -configuration Release \
-            -archivePath build/MediSupply.xcarchive \
-            archive
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData-iphoneos \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
+          # Encontrar el .app compilado para iphoneos
+          APP_PATH=$(find build/DerivedData-iphoneos -name "*.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: No se encontró el archivo .app compilado para iphoneos"
+            exit 1
+          fi
+
+          echo "App para dispositivos físicos encontrada en: $APP_PATH"
+          
+          # Crear directorio Payload
+          mkdir -p build/Payload
+          
+          # Copiar el .app al directorio Payload
+          cp -R "$APP_PATH" build/Payload/
+          
+          # Crear el .ipa
+          cd build
+          zip -r reactMobile.ipa Payload
+          rm -rf Payload
+          cd ..
+          
+          echo "✅ IPA creado en: build/reactMobile.ipa"
+
+      - name: Build iOS .app (for simulator)
+        working-directory: ios
+        run: |
+          # Compilar el .app para simulador
           xcodebuild \
-            -exportArchive \
-            -archivePath build/MediSupply.xcarchive \
-            -exportOptionsPlist exportOptions.plist \
-            -exportPath build
+            -workspace reactMobile.xcworkspace \
+            -scheme reactMobile \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -derivedDataPath build/DerivedData-simulator \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+          # Encontrar el .app compilado para simulador
+          SIM_APP_PATH=$(find build/DerivedData-simulator -name "*.app" -type d | head -1)
+          
+          if [ -z "$SIM_APP_PATH" ]; then
+            echo "Error: No se encontró el archivo .app compilado para simulador"
+            exit 1
+          fi
+
+          echo "App para simulador encontrada en: $SIM_APP_PATH"
+          
+          # Copiar el .app al directorio build para fácil acceso
+          cp -R "$SIM_APP_PATH" build/reactMobile-simulator.app
+          
+          echo "✅ App para simulador creada en: build/reactMobile-simulator.app"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: ios/build/*.ipa
+          path: ios/build/reactMobile.ipa
+
+      - name: Upload Simulator App artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-app
+          path: ios/build/reactMobile-simulator.app

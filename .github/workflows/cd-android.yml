@@ -2,46 +2,13 @@ name: CD Android
 
 on:
   push:
-    branches: [ main, develop, feature/auth ]
+    branches: [ main, develop, feature/auth, release ]
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]
   workflow_dispatch: # Permite ejecución manual
 
 jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug info
-        run: |
-          echo "=== DEBUG INFO ==="
-          echo "Event name: ${{ github.event_name }}"
-          echo "Current ref: ${{ github.ref }}"
-          echo "Current ref name: ${{ github.ref_name }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          if [ "${{ github.event_name }}" == "workflow_run" ]; then
-            echo ""
-            echo "=== WORKFLOW_RUN INFO ==="
-            echo "Workflow run conclusion: ${{ github.event.workflow_run.conclusion }}"
-            echo "Workflow run head branch: ${{ github.event.workflow_run.head_branch }}"
-            echo "Workflow run status: ${{ github.event.workflow_run.status }}"
-            echo ""
-            echo "=== CONDITION CHECK ==="
-            if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
-              echo "✅ CI was successful"
-            else
-              echo "❌ CI was NOT successful (conclusion: ${{ github.event.workflow_run.conclusion }})"
-            fi
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-            echo "Branch: $BRANCH"
-            if [ "$BRANCH" == "main" ] || [ "$BRANCH" == "develop" ] || [ "$BRANCH" == "feature/auth" ] || [[ "$BRANCH" == feature/auth/* ]]; then
-              echo "✅ Branch is allowed"
-            else
-              echo "❌ Branch is NOT allowed"
-            fi
-          fi
-  
   wait-for-ci:
     runs-on: ubuntu-latest
     outputs:
@@ -129,9 +96,7 @@ jobs:
 
   build-android:
     runs-on: ubuntu-latest
-    needs: 
-      - debug
-      - wait-for-ci
+    needs: wait-for-ci
     # Solo correr si:
     # - Es ejecución manual (workflow_dispatch), O
     # - El CI terminó exitosamente Y es una rama permitida (workflow_run), O
@@ -143,6 +108,7 @@ jobs:
        (github.event.workflow_run.head_branch == 'main' || 
         github.event.workflow_run.head_branch == 'develop' || 
         github.event.workflow_run.head_branch == 'feature/auth' || 
+        github.event.workflow_run.head_branch == 'release' ||
         startsWith(github.event.workflow_run.head_branch, 'feature/auth/'))) ||
       (github.event_name == 'push' && needs.wait-for-ci.outputs.ci-success == 'true')
 
