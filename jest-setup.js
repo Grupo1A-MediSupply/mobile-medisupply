@@ -397,78 +397,11 @@ jest.mock('@react-navigation/bottom-tabs', () => {
     dispatch: jest.fn(),
     addListener: jest.fn(),
     removeListener: jest.fn(),
-    getParent: jest.fn(() => null),
   };
   
   return {
     createBottomTabNavigator: () => {
-      const Navigator = ({ children, screenOptions }: any) => {
-        // Ejecutar screenOptions para cubrir las líneas 206-254
-        // screenOptions es una función que se ejecuta para cada ruta
-        if (screenOptions && typeof screenOptions === 'function') {
-          // Obtener todas las rutas para ejecutar screenOptions
-          const routes: any[] = [];
-          React.Children.forEach(children, (child) => {
-            if (child && child.props && child.props.name) {
-              routes.push({ name: child.props.name });
-            }
-          });
-          
-          // Ejecutar screenOptions para cada ruta para cubrir todas las líneas
-          routes.forEach(route => {
-            try {
-              const screenOptionsResult = screenOptions({ route, navigation: mockTabNavigation });
-              
-              // Ejecutar tabBarIcon si existe para cubrir todas las rutas (líneas 207-230)
-              if (screenOptionsResult && screenOptionsResult.tabBarIcon) {
-                // Ejecutar para todas las rutas posibles
-                const allRoutes = ['Dashboard', 'Inventory', 'Orders', 'Visits', 'Returns', 'Unknown'];
-                allRoutes.forEach(routeName => {
-                  try {
-                    screenOptionsResult.tabBarIcon({
-                      route: { name: routeName },
-                      focused: true,
-                      color: '#007AFF',
-                      size: 24,
-                    });
-                  } catch (e) {
-                    // Ignorar errores en tests
-                  }
-                });
-              }
-              
-              // Ejecutar headerRight si existe para renderizar MenuButton (línea 254)
-              // Esto ejecutará el código de MenuButton (líneas 98-176)
-              if (screenOptionsResult && screenOptionsResult.headerRight) {
-                try {
-                  const HeaderRightComponent = screenOptionsResult.headerRight;
-                  if (typeof HeaderRightComponent === 'function') {
-                    // Ejecutar headerRight para que se ejecute el código de MenuButton
-                    // Esto ejecutará las líneas 98-176 cuando se renderiza MenuButton
-                    const menuButtonElement = HeaderRightComponent();
-                    // Crear el elemento para que React ejecute el código
-                    if (menuButtonElement) {
-                      // Usar React.createElement para que se ejecute el código del componente
-                      React.createElement(View, { testID: 'menu-button-wrapper' }, menuButtonElement);
-                    }
-                  }
-                } catch (e) {
-                  // Intentar ejecutar de todas formas para cubrir el código
-                  try {
-                    if (screenOptionsResult.headerRight && typeof screenOptionsResult.headerRight === 'function') {
-                      screenOptionsResult.headerRight();
-                    }
-                  } catch (e2) {
-                    // Ignorar errores
-                  }
-                }
-              }
-            } catch (e) {
-              // Ignorar errores en tests
-            }
-          });
-        }
-        
+      const Navigator = ({ children }: any) => {
         // Renderizar Dashboard (primer tab) por defecto
         let dashboardComponent = null;
         React.Children.forEach(children, (child) => {
