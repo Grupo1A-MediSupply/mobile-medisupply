@@ -1,10 +1,17 @@
 module.exports = {
   preset: 'react-native',
+  rootDir: __dirname,
   setupFiles: ['<rootDir>/jest-setup.js'],
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?react-native|@react-native|@react-navigation|expo|@expo|@unimodules|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-vector-icons|@testing-library)',
   ],
-  testMatch: ['**/__tests__/**/*.(test|spec).{ts,tsx}', '**/*.(test|spec).{ts,tsx}'],
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.{ts,tsx}', '<rootDir>/src/**/__tests__/**/*.spec.{ts,tsx}', '<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/src/**/*.spec.{ts,tsx}'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.git/',
+    '/dist/',
+    '/build/',
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

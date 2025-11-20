@@ -18,7 +18,7 @@ describe('InventoryScreen', () => {
     );
 
     // Verificar que el input de búsqueda existe
-    expect(getByPlaceholderText('Buscar productos...')).toBeTruthy();
+    expect(getByPlaceholderText('Buscar por nombre o código...')).toBeTruthy();
   });
 
   it('displays stats cards', () => {
@@ -26,10 +26,9 @@ describe('InventoryScreen', () => {
       <InventoryScreen navigation={mockNavigation} />
     );
 
-    expect(getByText('Productos')).toBeTruthy();
-    expect(getByText('48')).toBeTruthy();
+    expect(getByText('Total Productos')).toBeTruthy();
     expect(getByText('Stock Bajo')).toBeTruthy();
-    expect(getByText('7')).toBeTruthy();
+    expect(getByText('Valor Total')).toBeTruthy();
   });
 
   it('updates search text', () => {
@@ -37,7 +36,7 @@ describe('InventoryScreen', () => {
       <InventoryScreen navigation={mockNavigation} />
     );
 
-    const searchInput = getByPlaceholderText('Buscar productos...');
+    const searchInput = getByPlaceholderText('Buscar por nombre o código...');
     fireEvent.changeText(searchInput, 'Mascarilla');
 
     expect(searchInput.props.value).toBe('Mascarilla');
@@ -49,7 +48,7 @@ describe('InventoryScreen', () => {
     );
 
     // Verificar que la pantalla se renderiza
-    expect(getByPlaceholderText('Buscar productos...')).toBeTruthy();
+    expect(getByPlaceholderText('Buscar por nombre o código...')).toBeTruthy();
   });
 
   it('renders product list', () => {
@@ -58,7 +57,7 @@ describe('InventoryScreen', () => {
     );
 
     // Verificar que el input de búsqueda existe
-    expect(getByPlaceholderText('Buscar productos...')).toBeTruthy();
+    expect(getByPlaceholderText('Buscar por nombre o código...')).toBeTruthy();
   });
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,17 @@ import {
   TextInput,
   FlatList,
   Modal,
+  Image,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 import { COLORS, SIZES, MOCK_DATA, CATEGORIES, GRADIENTS } from '../constants';
 import { Product } from '../types';
+import { validateRequired, validatePrice, validateStock } from '../utils/validation';
 
 interface InventoryScreenProps {
   navigation: any;
@@ -26,36 +31,114 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [stockFilter, setStockFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
-  const [viewMode, setViewMode] = useState<'grid' | 'cards'>('grid');
-  const [products, setProducts] = useState<Product[]>(MOCK_DATA.products);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [showSortModal, setShowSortModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showCategorySelectModal, setShowCategorySelectModal] = useState(false);
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    code: '',
+    category: '',
+    price: '',
+    stock: '',
+    description: '',
+    specifications: '',
+    wholesalePrice: '',
+    minStock: '',
+    supplier: '',
+    photos: [] as string[],
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const allProducts = MOCK_DATA.products;
+
+  // Calcular estadísticas
+  const stats = useMemo(() => {
+    const totalProducts = allProducts.length;
+    const lowStock = allProducts.filter(p => p.stock < 10).length;
+    const totalValue = allProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
+    
+    return {
+      totalProducts,
+      lowStock,
+      totalValue,
+    };
+  }, [allProducts]);
+
+  // Filtrar y ordenar productos
+  const filteredAndSortedProducts = useMemo(() => {
+    let filtered = allProducts.filter(product => {
+      // Filtro de búsqueda (nombre o código)
+      const matchesSearch = searchText === '' || 
+        product.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        product.code.toLowerCase().includes(searchText.toLowerCase());
+      
+      // Filtro de categoría
+      const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+      
+      // Filtro de stock
+      let matchesStock = true;
+      if (stockFilter === 'low') {
+        matchesStock = product.stock < 10;
+      } else if (stockFilter === 'normal') {
+        matchesStock = product.stock >= 10 && product.stock < 50;
+      } else if (stockFilter === 'high') {
+        matchesStock = product.stock >= 50;
+      }
+      
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+
+    // Ordenar
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price':
+          return b.price - a.price;
+        case 'stock':
+          return b.stock - a.stock;
+        case 'category':
+          return a.category.localeCompare(b.category);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [allProducts, searchText, categoryFilter, stockFilter, sortBy]);
+
+  const getStockStatus = (stock: number) => {
+    if (stock < 10) return { status: 'low', color: COLORS.danger, label: 'Bajo' };
+    if (stock < 50) return { status: 'normal', color: COLORS.warning, label: 'Medio' };
+    return { status: 'high', color: COLORS.success, label: 'Alto' };
+  };
 
   const statsCards = [
     {
-      title: 'Productos',
-      value: '48',
+      title: 'Total Productos',
+      value: stats.totalProducts.toString(),
       icon: 'inventory',
       color: COLORS.primary,
     },
     {
       title: 'Stock Bajo',
-      value: '7',
+      value: stats.lowStock.toString(),
       icon: 'warning',
       color: COLORS.warning,
     },
     {
       title: 'Valor Total',
-      value: '$45.2M',
+      value: `$${(stats.totalValue / 1000000).toFixed(1)}M`,
       icon: 'attach-money',
       color: COLORS.success,
     },
   ];
-
-  const getStockStatus = (stock: number) => {
-    if (stock < 10) return { status: 'low', color: COLORS.danger };
-    if (stock < 50) return { status: 'normal', color: COLORS.warning };
-    return { status: 'high', color: COLORS.success };
-  };
 
   const renderStatsCard = (card: any, index: number) => (
     <View key={index} style={styles.statsCard}>
@@ -72,72 +155,272 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
     </View>
   );
 
+  const handleProductPress = (product: Product) => {
+    // Por ahora mostrar un alert, luego se puede crear una pantalla de detalle
+    navigation.navigate('ProductDetail', { product });
+  };
+
   const renderProductItem = ({ item }: { item: Product }) => {
     const stockStatus = getStockStatus(item.stock);
     
     return (
-      <TouchableOpacity style={styles.productItem}>
-        <View style={styles.productHeader}>
-          <Text style={styles.productName} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <View style={[styles.productCategory, { backgroundColor: COLORS.light }]}>
-            <Text style={styles.productCategoryText}>
-              {CATEGORIES.find(cat => cat.value === item.category)?.label}
-            </Text>
-          </View>
-        </View>
-        
-        <View style={styles.productContent}>
-          <View style={styles.productInfo}>
-            <Text style={styles.productCode}>{item.code}</Text>
-            <Text style={styles.productPrice}>${item.price.toLocaleString()}</Text>
-          </View>
-        </View>
-        
-        <View style={styles.productStock}>
-          <View style={styles.stockIndicator}>
-            <View style={[styles.stockDot, { backgroundColor: stockStatus.color }]} />
-            <Text style={[styles.stockText, { color: stockStatus.color }]}>
-              {item.stock} unidades
-            </Text>
-          </View>
-          <View style={styles.stockBar}>
-            <View 
-              style={[
-                styles.stockBarFill, 
-                { 
-                  width: `${Math.min((item.stock / 100) * 100, 100)}%`,
-                  backgroundColor: stockStatus.color 
-                }
-              ]} 
-            />
-          </View>
-        </View>
-        
-        <View style={styles.productDetails}>
-          <Text style={styles.productSupplier}>Proveedor: {item.supplier}</Text>
-          {item.expiryDate && (
-            <Text style={styles.productExpiry}>Vence: {item.expiryDate}</Text>
+      <TouchableOpacity 
+        style={styles.productItem}
+        onPress={() => handleProductPress(item)}
+        activeOpacity={0.7}
+      >
+        {/* Product Image */}
+        <View style={styles.productImageContainer}>
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.productImage} />
+          ) : (
+            <View style={styles.productImagePlaceholder}>
+              <MaterialIcons name="inventory" size={40} color={COLORS.gray} />
+            </View>
           )}
         </View>
-        
-        <View style={styles.productActions}>
-          <TouchableOpacity style={[styles.actionBtn, styles.primaryBtn]}>
-            <MaterialIcons name="edit" size={16} color={COLORS.white} />
-            <Text style={styles.actionBtnText}>Editar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.secondaryBtn]}>
-            <MaterialIcons name="visibility" size={16} color={COLORS.gray} />
-            <Text style={[styles.actionBtnText, { color: COLORS.gray }]}>Ver</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.dangerBtn]}>
-            <MaterialIcons name="delete" size={16} color={COLORS.danger} />
-            <Text style={[styles.actionBtnText, { color: COLORS.danger }]}>Eliminar</Text>
-          </TouchableOpacity>
+
+        <View style={styles.productContent}>
+          <View style={styles.productHeader}>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName} numberOfLines={2}>
+                {item.name}
+              </Text>
+              <Text style={styles.productCode}>{item.code}</Text>
+            </View>
+            <View style={[styles.productCategory, { backgroundColor: COLORS.light }]}>
+              <Text style={styles.productCategoryText}>
+                {CATEGORIES.find(cat => cat.value === item.category)?.label}
+              </Text>
+            </View>
+          </View>
+          
+          <View style={styles.productDetails}>
+            <View style={styles.productPriceContainer}>
+              <Text style={styles.productPriceLabel}>Precio</Text>
+              <Text style={styles.productPrice}>${item.price.toLocaleString()}</Text>
+            </View>
+            <View style={styles.productStockContainer}>
+              <Text style={styles.productStockLabel}>Stock</Text>
+              <View style={styles.stockIndicator}>
+                <View style={[styles.stockDot, { backgroundColor: stockStatus.color }]} />
+                <Text style={[styles.stockText, { color: stockStatus.color }]}>
+                  {item.stock} unidades
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
+  };
+
+  const renderFilterModal = (
+    visible: boolean,
+    onClose: () => void,
+    title: string,
+    options: { value: string; label: string }[],
+    selectedValue: string,
+    onSelect: (value: string) => void
+  ) => (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>{title}</Text>
+            <TouchableOpacity onPress={onClose}>
+              <MaterialIcons name="close" size={24} color={COLORS.gray} />
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.modalOptions}>
+            {options.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.modalOption,
+                  selectedValue === option.value && styles.modalOptionSelected
+                ]}
+                onPress={() => {
+                  onSelect(option.value);
+                  onClose();
+                }}
+              >
+                <Text style={[
+                  styles.modalOptionText,
+                  selectedValue === option.value && styles.modalOptionTextSelected
+                ]}>
+                  {option.label}
+                </Text>
+                {selectedValue === option.value && (
+                  <MaterialIcons name="check" size={20} color={COLORS.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      code: '',
+      category: '',
+      price: '',
+      stock: '',
+      description: '',
+      specifications: '',
+      wholesalePrice: '',
+      minStock: '',
+      supplier: '',
+      photos: [],
+    });
+    setFormErrors({});
+  };
+
+  const handlePickImage = async () => {
+    if (formData.photos.length >= 5) {
+      Alert.alert('Límite alcanzado', 'Solo puedes agregar un máximo de 5 fotos');
+      return;
+    }
+
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permisos', 'Se necesitan permisos para acceder a la galería');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets) {
+        const newPhotos = result.assets.slice(0, 5 - formData.photos.length).map(asset => asset.uri);
+        setFormData({ ...formData, photos: [...formData.photos, ...newPhotos] });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cargar la imagen');
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    const newPhotos = formData.photos.filter((_, i) => i !== index);
+    setFormData({ ...formData, photos: newPhotos });
+  };
+
+  const handleScanBarcode = () => {
+    // Simulación de escaneo de código de barras
+    Alert.alert(
+      'Escanear Código',
+      'Funcionalidad de escaneo de código de barras. En producción, esto abriría la cámara para escanear.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Simular Escaneo',
+          onPress: () => {
+            // Generar un código aleatorio para simular
+            const randomCode = 'PROD' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            setFormData({ ...formData, code: randomCode });
+            Alert.alert('Código Escaneado', `Código: ${randomCode}`);
+          },
+        },
+      ]
+    );
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!validateRequired(formData.name)) {
+      errors.name = 'El nombre es obligatorio';
+    }
+
+    if (!validateRequired(formData.code)) {
+      errors.code = 'El código es obligatorio';
+    } else {
+      // Validar que el código no exista
+      const codeExists = allProducts.some(p => p.code.toLowerCase() === formData.code.toLowerCase());
+      if (codeExists) {
+        errors.code = 'Este código ya existe';
+      }
+    }
+
+    if (!validateRequired(formData.category)) {
+      errors.category = 'La categoría es obligatoria';
+    }
+
+    if (!validateRequired(formData.price)) {
+      errors.price = 'El precio es obligatorio';
+    } else if (!validatePrice(formData.price)) {
+      errors.price = 'El precio debe ser un número positivo';
+    }
+
+    if (!validateRequired(formData.stock)) {
+      errors.stock = 'El stock inicial es obligatorio';
+    } else if (!validateStock(formData.stock)) {
+      errors.stock = 'El stock debe ser un número entero positivo';
+    }
+
+    if (formData.wholesalePrice && !validatePrice(formData.wholesalePrice)) {
+      errors.wholesalePrice = 'El precio mayorista debe ser un número positivo';
+    }
+
+    if (formData.minStock && !validateStock(formData.minStock)) {
+      errors.minStock = 'El stock mínimo debe ser un número entero positivo';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = async (addAnother: boolean = false) => {
+    if (!validateForm()) {
+      Alert.alert('Error', 'Por favor corrige los errores en el formulario');
+      return;
+    }
+
+    setIsSaving(true);
+
+    // Simular guardado
+    setTimeout(() => {
+      setIsSaving(false);
+      Alert.alert(
+        'Éxito',
+        'Producto guardado exitosamente',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              if (addAnother) {
+                resetForm();
+                setShowPreviewModal(false);
+              } else {
+                resetForm();
+                setShowAddModal(false);
+                setShowPreviewModal(false);
+              }
+            },
+          },
+        ]
+      );
+    }, 1000);
+  };
+
+  const handlePreview = () => {
+    if (!validateForm()) {
+      Alert.alert('Error', 'Por favor completa los campos obligatorios');
+      return;
+    }
+    setShowPreviewModal(true);
   };
 
   const renderAddProductModal = () => (
@@ -145,67 +428,386 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
       visible={showAddModal}
       animationType="slide"
       transparent={true}
-      onRequestClose={() => setShowAddModal(false)}
+      onRequestClose={() => {
+        setShowAddModal(false);
+        resetForm();
+      }}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+        <View style={styles.modalContentLarge}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Nuevo Producto</Text>
-            <TouchableOpacity onPress={() => setShowAddModal(false)}>
+            <TouchableOpacity
+              onPress={() => {
+                setShowAddModal(false);
+                resetForm();
+              }}
+            >
               <MaterialIcons name="close" size={24} color={COLORS.gray} />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView style={styles.modalForm}>
+
+          <ScrollView style={styles.modalForm} showsVerticalScrollIndicator={false}>
+            {/* Fotos */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Nombre del Producto</Text>
-              <TextInput style={styles.formInput} placeholder="Ingresa el nombre" />
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Código</Text>
-              <TextInput style={styles.formInput} placeholder="Código del producto" />
-            </View>
-            
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Categoría</Text>
-              <View style={styles.formSelect}>
-                <Text style={styles.formSelectText}>Seleccionar categoría</Text>
-                <MaterialIcons name="arrow-drop-down" size={24} color={COLORS.gray} />
+              <Text style={styles.formLabel}>Fotos del Producto (máximo 5)</Text>
+              <View style={styles.photosContainer}>
+                {formData.photos.map((photo, index) => (
+                  <View key={index} style={styles.photoItem}>
+                    <Image source={{ uri: photo }} style={styles.photoPreview} />
+                    <TouchableOpacity
+                      style={styles.removePhotoButton}
+                      onPress={() => handleRemovePhoto(index)}
+                    >
+                      <MaterialIcons name="close" size={16} color={COLORS.white} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {formData.photos.length < 5 && (
+                  <TouchableOpacity style={styles.addPhotoButton} onPress={handlePickImage}>
+                    <MaterialIcons name="add-a-photo" size={24} color={COLORS.primary} />
+                    <Text style={styles.addPhotoText}>Agregar</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
-            
+
+            {/* Nombre - Obligatorio */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Precio</Text>
-              <TextInput style={styles.formInput} placeholder="0" keyboardType="numeric" />
+              <Text style={styles.formLabel}>
+                Nombre <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.formInput, formErrors.name && styles.formInputError]}
+                placeholder="Ingresa el nombre del producto"
+                value={formData.name}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, name: text });
+                  if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
+                }}
+              />
+              {formErrors.name && <Text style={styles.errorText}>{formErrors.name}</Text>}
             </View>
-            
+
+            {/* Código - Obligatorio */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Stock</Text>
-              <TextInput style={styles.formInput} placeholder="0" keyboardType="numeric" />
+              <Text style={styles.formLabel}>
+                Código <Text style={styles.required}>*</Text>
+              </Text>
+              <View style={styles.codeInputContainer}>
+                <TextInput
+                  style={[styles.formInput, styles.codeInput, formErrors.code && styles.formInputError]}
+                  placeholder="Código del producto"
+                  value={formData.code}
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, code: text });
+                    if (formErrors.code) setFormErrors({ ...formErrors, code: '' });
+                  }}
+                />
+                <TouchableOpacity style={styles.scanButton} onPress={handleScanBarcode}>
+                  <MaterialIcons name="qr-code-scanner" size={20} color={COLORS.primary} />
+                </TouchableOpacity>
+              </View>
+              {formErrors.code && <Text style={styles.errorText}>{formErrors.code}</Text>}
             </View>
-            
+
+            {/* Categoría - Obligatorio */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>
+                Categoría <Text style={styles.required}>*</Text>
+              </Text>
+              <TouchableOpacity
+                style={[styles.formSelect, formErrors.category && styles.formInputError]}
+                onPress={() => setShowCategorySelectModal(true)}
+              >
+                <Text style={[styles.formSelectText, !formData.category && { color: COLORS.gray }]}>
+                  {formData.category
+                    ? CATEGORIES.find(cat => cat.value === formData.category)?.label
+                    : 'Seleccionar categoría'}
+                </Text>
+                <MaterialIcons name="arrow-drop-down" size={24} color={COLORS.gray} />
+              </TouchableOpacity>
+              {formErrors.category && <Text style={styles.errorText}>{formErrors.category}</Text>}
+            </View>
+
+            {/* Precio - Obligatorio */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>
+                Precio <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.formInput, formErrors.price && styles.formInputError]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.price}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, price: text });
+                  if (formErrors.price) setFormErrors({ ...formErrors, price: '' });
+                }}
+              />
+              {formErrors.price && <Text style={styles.errorText}>{formErrors.price}</Text>}
+            </View>
+
+            {/* Stock Inicial - Obligatorio */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>
+                Stock Inicial <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.formInput, formErrors.stock && styles.formInputError]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.stock}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, stock: text });
+                  if (formErrors.stock) setFormErrors({ ...formErrors, stock: '' });
+                }}
+              />
+              {formErrors.stock && <Text style={styles.errorText}>{formErrors.stock}</Text>}
+            </View>
+
+            {/* Descripción - Opcional */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Descripción</Text>
+              <TextInput
+                style={[styles.formInput, styles.textArea]}
+                placeholder="Descripción del producto"
+                multiline
+                numberOfLines={3}
+                value={formData.description}
+                onChangeText={(text) => setFormData({ ...formData, description: text })}
+              />
+            </View>
+
+            {/* Especificaciones - Opcional */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Especificaciones</Text>
+              <TextInput
+                style={[styles.formInput, styles.textArea]}
+                placeholder="Especificaciones técnicas"
+                multiline
+                numberOfLines={3}
+                value={formData.specifications}
+                onChangeText={(text) => setFormData({ ...formData, specifications: text })}
+              />
+            </View>
+
+            {/* Precio Mayorista - Opcional */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Precio Mayorista</Text>
+              <TextInput
+                style={[styles.formInput, formErrors.wholesalePrice && styles.formInputError]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.wholesalePrice}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, wholesalePrice: text });
+                  if (formErrors.wholesalePrice) setFormErrors({ ...formErrors, wholesalePrice: '' });
+                }}
+              />
+              {formErrors.wholesalePrice && <Text style={styles.errorText}>{formErrors.wholesalePrice}</Text>}
+            </View>
+
+            {/* Stock Mínimo - Opcional */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Stock Mínimo</Text>
+              <TextInput
+                style={[styles.formInput, formErrors.minStock && styles.formInputError]}
+                placeholder="0"
+                keyboardType="numeric"
+                value={formData.minStock}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, minStock: text });
+                  if (formErrors.minStock) setFormErrors({ ...formErrors, minStock: '' });
+                }}
+              />
+              {formErrors.minStock && <Text style={styles.errorText}>{formErrors.minStock}</Text>}
+            </View>
+
+            {/* Proveedor - Opcional */}
             <View style={styles.formGroup}>
               <Text style={styles.formLabel}>Proveedor</Text>
-              <TextInput style={styles.formInput} placeholder="Nombre del proveedor" />
+              <TextInput
+                style={styles.formInput}
+                placeholder="Nombre del proveedor"
+                value={formData.supplier}
+                onChangeText={(text) => setFormData({ ...formData, supplier: text })}
+              />
             </View>
           </ScrollView>
-          
+
           <View style={styles.modalActions}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.modalBtn, styles.secondaryBtn]}
-              onPress={() => setShowAddModal(false)}
+              onPress={() => {
+                setShowAddModal(false);
+                resetForm();
+              }}
             >
               <Text style={[styles.modalBtnText, { color: COLORS.gray }]}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.modalBtn, styles.primaryBtn]}>
-              <Text style={[styles.modalBtnText, { color: COLORS.white }]}>Guardar</Text>
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.previewBtn]}
+              onPress={handlePreview}
+            >
+              <MaterialIcons name="visibility" size={16} color={COLORS.white} />
+              <Text style={[styles.modalBtnText, { color: COLORS.white, marginLeft: 4 }]}>Vista Previa</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.primaryBtn]}
+              onPress={() => handleSave(false)}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={COLORS.white} />
+              ) : (
+                <Text style={[styles.modalBtnText, { color: COLORS.white }]}>Guardar</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
       </View>
     </Modal>
   );
+
+  const renderPreviewModal = () => (
+    <Modal
+      visible={showPreviewModal}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setShowPreviewModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContentLarge}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Vista Previa del Producto</Text>
+            <TouchableOpacity onPress={() => setShowPreviewModal(false)}>
+              <MaterialIcons name="close" size={24} color={COLORS.gray} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.previewContent} showsVerticalScrollIndicator={false}>
+            {/* Fotos */}
+            {formData.photos.length > 0 && (
+              <View style={styles.previewPhotos}>
+                {formData.photos.map((photo, index) => (
+                  <Image key={index} source={{ uri: photo }} style={styles.previewPhoto} />
+                ))}
+              </View>
+            )}
+
+            <View style={styles.previewSection}>
+              <Text style={styles.previewName}>{formData.name || 'Nombre del producto'}</Text>
+              <Text style={styles.previewCode}>Código: {formData.code || 'N/A'}</Text>
+              {formData.category && (
+                <View style={styles.previewCategory}>
+                  <Text style={styles.previewCategoryText}>
+                    {CATEGORIES.find(cat => cat.value === formData.category)?.label}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.previewDetails}>
+              <View style={styles.previewRow}>
+                <Text style={styles.previewLabel}>Precio:</Text>
+                <Text style={styles.previewValue}>${parseFloat(formData.price || '0').toLocaleString()}</Text>
+              </View>
+              {formData.wholesalePrice && (
+                <View style={styles.previewRow}>
+                  <Text style={styles.previewLabel}>Precio Mayorista:</Text>
+                  <Text style={styles.previewValue}>${parseFloat(formData.wholesalePrice).toLocaleString()}</Text>
+                </View>
+              )}
+              <View style={styles.previewRow}>
+                <Text style={styles.previewLabel}>Stock Inicial:</Text>
+                <Text style={styles.previewValue}>{formData.stock || '0'} unidades</Text>
+              </View>
+              {formData.minStock && (
+                <View style={styles.previewRow}>
+                  <Text style={styles.previewLabel}>Stock Mínimo:</Text>
+                  <Text style={styles.previewValue}>{formData.minStock} unidades</Text>
+                </View>
+              )}
+              {formData.supplier && (
+                <View style={styles.previewRow}>
+                  <Text style={styles.previewLabel}>Proveedor:</Text>
+                  <Text style={styles.previewValue}>{formData.supplier}</Text>
+                </View>
+              )}
+              {formData.description && (
+                <View style={styles.previewDescription}>
+                  <Text style={styles.previewLabel}>Descripción:</Text>
+                  <Text style={styles.previewDescriptionText}>{formData.description}</Text>
+                </View>
+              )}
+              {formData.specifications && (
+                <View style={styles.previewDescription}>
+                  <Text style={styles.previewLabel}>Especificaciones:</Text>
+                  <Text style={styles.previewDescriptionText}>{formData.specifications}</Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+
+          <View style={styles.modalActions}>
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.secondaryBtn]}
+              onPress={() => setShowPreviewModal(false)}
+            >
+              <Text style={[styles.modalBtnText, { color: COLORS.gray }]}>Volver</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.successBtn]}
+              onPress={() => handleSave(true)}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={COLORS.white} />
+              ) : (
+                <>
+                  <MaterialIcons name="add" size={16} color={COLORS.white} />
+                  <Text style={[styles.modalBtnText, { color: COLORS.white, marginLeft: 4 }]}>
+                    Guardar y Agregar Otro
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalBtn, styles.primaryBtn]}
+              onPress={() => handleSave(false)}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color={COLORS.white} />
+              ) : (
+                <Text style={[styles.modalBtnText, { color: COLORS.white }]}>Guardar</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const categoryOptions = [
+    { value: 'all', label: 'Todas' },
+    ...CATEGORIES.map(cat => ({ value: cat.value, label: cat.label })),
+  ];
+
+  const stockOptions = [
+    { value: 'all', label: 'Todo' },
+    { value: 'low', label: 'Stock Bajo' },
+    { value: 'normal', label: 'Stock Normal' },
+    { value: 'high', label: 'Stock Alto' },
+  ];
+
+  const sortOptions = [
+    { value: 'name', label: 'Por Nombre' },
+    { value: 'price', label: 'Por Precio' },
+    { value: 'stock', label: 'Por Stock' },
+    { value: 'category', label: 'Por Categoría' },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -223,74 +825,66 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
           {statsCards.map((card, index) => renderStatsCard(card, index))}
         </View>
 
-        {/* Search and Filter */}
+        {/* Search */}
         <View style={styles.searchSection}>
           <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Buscar productos..."
+              placeholder="Buscar por nombre o código..."
               placeholderTextColor={COLORS.gray}
               value={searchText}
               onChangeText={setSearchText}
             />
-            <TouchableOpacity style={styles.searchButton}>
-              <MaterialIcons name="search" size={18} color={COLORS.gray} />
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.filterRow}>
-            <View style={styles.filterGroup}>
-              <Text style={styles.filterLabel}>Categoría</Text>
-              <View style={styles.filterSelect}>
-                <Text style={styles.filterSelectText}>
-                  {CATEGORIES.find(cat => cat.value === categoryFilter)?.label || 'Todas'}
-                </Text>
-                <MaterialIcons name="arrow-drop-down" size={20} color={COLORS.gray} />
-              </View>
-            </View>
-            
-            <View style={styles.filterGroup}>
-              <Text style={styles.filterLabel}>Stock</Text>
-              <View style={styles.filterSelect}>
-                <Text style={styles.filterSelectText}>
-                  {stockFilter === 'all' ? 'Todo' : 
-                   stockFilter === 'low' ? 'Bajo' :
-                   stockFilter === 'normal' ? 'Normal' : 'Alto'}
-                </Text>
-                <MaterialIcons name="arrow-drop-down" size={20} color={COLORS.gray} />
-              </View>
-            </View>
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <MaterialIcons name="close" size={20} color={COLORS.gray} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
-        {/* View Controls */}
-        <View style={styles.viewControls}>
-          <View style={styles.viewOptions}>
-            <TouchableOpacity
-              style={[styles.viewOption, viewMode === 'grid' && styles.viewOptionActive]}
-              onPress={() => setViewMode('grid')}
-            >
-              <MaterialIcons name="grid-view" size={16} color={viewMode === 'grid' ? COLORS.white : COLORS.gray} />
-              <Text style={[styles.viewOptionText, viewMode === 'grid' && styles.viewOptionTextActive]}>
-                Cuadrícula
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.viewOption, viewMode === 'cards' && styles.viewOptionActive]}
-              onPress={() => setViewMode('cards')}
-            >
-              <MaterialIcons name="view-module" size={16} color={viewMode === 'cards' ? COLORS.white : COLORS.gray} />
-              <Text style={[styles.viewOptionText, viewMode === 'cards' && styles.viewOptionTextActive]}>
-                Tarjetas
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.viewInfo}>
-            <Text style={styles.viewInfoText}>{products.length} productos</Text>
-            <Text style={styles.separator}>•</Text>
-            <Text style={styles.viewInfoText}>Mostrando todos</Text>
-          </View>
+        {/* Filters */}
+        <View style={styles.filtersSection}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowCategoryModal(true)}
+          >
+            <MaterialIcons name="category" size={16} color={COLORS.primary} />
+            <Text style={styles.filterButtonText}>
+              {categoryOptions.find(opt => opt.value === categoryFilter)?.label || 'Categoría'}
+            </Text>
+            <MaterialIcons name="arrow-drop-down" size={16} color={COLORS.gray} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowStockModal(true)}
+          >
+            <MaterialIcons name="inventory" size={16} color={COLORS.primary} />
+            <Text style={styles.filterButtonText}>
+              {stockOptions.find(opt => opt.value === stockFilter)?.label || 'Stock'}
+            </Text>
+            <MaterialIcons name="arrow-drop-down" size={16} color={COLORS.gray} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setShowSortModal(true)}
+          >
+            <MaterialIcons name="sort" size={16} color={COLORS.primary} />
+            <Text style={styles.filterButtonText}>
+              {sortOptions.find(opt => opt.value === sortBy)?.label || 'Ordenar'}
+            </Text>
+            <MaterialIcons name="arrow-drop-down" size={16} color={COLORS.gray} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Product Count */}
+        <View style={styles.productCountContainer}>
+          <Text style={styles.productCount}>
+            {filteredAndSortedProducts.length} {filteredAndSortedProducts.length === 1 ? 'producto' : 'productos'}
+          </Text>
         </View>
 
         {/* Products List */}
@@ -302,23 +896,67 @@ const InventoryScreen: React.FC<InventoryScreenProps> = ({ navigation }) => {
               onPress={() => setShowAddModal(true)}
             >
               <MaterialIcons name="add" size={16} color={COLORS.white} />
-              <Text style={styles.addProductBtnText}>Nuevo Producto</Text>
+              <Text style={styles.addProductBtnText}>Nuevo</Text>
             </TouchableOpacity>
           </View>
           
-          <FlatList
-            data={products}
-            renderItem={renderProductItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            numColumns={viewMode === 'grid' ? 2 : 1}
-            columnWrapperStyle={viewMode === 'grid' ? styles.gridRow : undefined}
-          />
+          {filteredAndSortedProducts.length > 0 ? (
+            <FlatList
+              data={filteredAndSortedProducts}
+              renderItem={renderProductItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="inventory-2" size={48} color={COLORS.gray} />
+              <Text style={styles.emptyStateText}>No se encontraron productos</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Intenta cambiar los filtros o la búsqueda
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
 
       {renderAddProductModal()}
+      {renderPreviewModal()}
+      {renderFilterModal(
+        showCategoryModal,
+        () => setShowCategoryModal(false),
+        'Filtrar por Categoría',
+        categoryOptions,
+        categoryFilter,
+        setCategoryFilter
+      )}
+      {renderFilterModal(
+        showStockModal,
+        () => setShowStockModal(false),
+        'Filtrar por Stock',
+        stockOptions,
+        stockFilter,
+        setStockFilter
+      )}
+      {renderFilterModal(
+        showSortModal,
+        () => setShowSortModal(false),
+        'Ordenar por',
+        sortOptions,
+        sortBy,
+        setSortBy
+      )}
+      {renderFilterModal(
+        showCategorySelectModal,
+        () => setShowCategorySelectModal(false),
+        'Seleccionar Categoría',
+        CATEGORIES.map(cat => ({ value: cat.value, label: cat.label })),
+        formData.category,
+        (value) => {
+          setFormData({ ...formData, category: value });
+          if (formErrors.category) setFormErrors({ ...formErrors, category: '' });
+        }
+      )}
     </SafeAreaView>
   );
 };
@@ -383,100 +1021,61 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
   },
   searchSection: {
-    marginBottom: 25,
+    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.light,
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  searchIcon: {
+    marginRight: 12,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 12,
     fontSize: 16,
     color: COLORS.black,
   },
-  searchButton: {
-    padding: 8,
-  },
-  filterRow: {
+  filtersSection: {
     flexDirection: 'row',
     gap: 10,
+    marginBottom: 20,
   },
-  filterGroup: {
+  filterButton: {
     flex: 1,
-  },
-  filterLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginBottom: 5,
-  },
-  filterSelect: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    backgroundColor: COLORS.light,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 8,
-    paddingHorizontal: 12,
     paddingVertical: 10,
+    paddingHorizontal: 8,
+    gap: 6,
   },
-  filterSelectText: {
-    fontSize: 14,
+  filterButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
     color: COLORS.black,
+    flex: 1,
   },
-  viewControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  productCountContainer: {
     backgroundColor: COLORS.light,
     borderRadius: 8,
     padding: 15,
     marginBottom: 20,
-  },
-  viewOptions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  viewOption: {
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 6,
   },
-  viewOptionActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  viewOptionText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: COLORS.gray,
-    marginLeft: 4,
-  },
-  viewOptionTextActive: {
-    color: COLORS.white,
-  },
-  viewInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  viewInfoText: {
-    fontSize: 12,
-    color: COLORS.gray,
-  },
-  separator: {
-    color: COLORS.gray,
+  productCount: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.black,
   },
   productsSection: {
     marginBottom: 20,
@@ -507,11 +1106,12 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   productItem: {
+    flexDirection: 'row',
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     marginBottom: 12,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
@@ -519,17 +1119,46 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  productImageContainer: {
+    marginRight: 12,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: COLORS.light,
+  },
+  productImagePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: COLORS.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productContent: {
+    flex: 1,
+  },
   productHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 8,
+  },
+  productInfo: {
+    flex: 1,
+    marginRight: 8,
   },
   productName: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.black,
-    flex: 1,
+    marginBottom: 4,
+  },
+  productCode: {
+    fontSize: 12,
+    color: COLORS.gray,
+    fontFamily: 'monospace',
   },
   productCategory: {
     paddingHorizontal: 8,
@@ -542,112 +1171,86 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: COLORS.gray,
   },
-  productContent: {
+  productDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: 8,
   },
-  productInfo: {
+  productPriceContainer: {
     flex: 1,
   },
-  productCode: {
-    fontSize: 12,
+  productPriceLabel: {
+    fontSize: 10,
     color: COLORS.gray,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   productPrice: {
     fontSize: 18,
     fontWeight: '700',
     color: COLORS.primary,
   },
-  productStock: {
-    marginBottom: 12,
+  productStockContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  productStockLabel: {
+    fontSize: 10,
+    color: COLORS.gray,
+    marginBottom: 2,
   },
   stockIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   stockDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 8,
+    marginRight: 6,
   },
   stockText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
   },
-  stockBar: {
-    height: 6,
-    backgroundColor: COLORS.light,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  stockBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  productDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  productSupplier: {
-    fontSize: 12,
-    color: COLORS.gray,
-  },
-  productExpiry: {
-    fontSize: 12,
-    color: COLORS.gray,
-  },
-  productActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionBtn: {
-    flexDirection: 'row',
+  // Empty State Styles
+  emptyState: {
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    flex: 1,
     justifyContent: 'center',
+    padding: 40,
+    marginTop: 20,
   },
-  primaryBtn: {
-    backgroundColor: COLORS.primary,
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginTop: 16,
+    marginBottom: 8,
   },
-  secondaryBtn: {
-    backgroundColor: COLORS.light,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  dangerBtn: {
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.danger,
-  },
-  actionBtnText: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginLeft: 4,
-  },
-  gridRow: {
-    justifyContent: 'space-between',
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: COLORS.gray,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 20,
-    width: '90%',
     maxHeight: '80%',
+  },
+  modalContentLarge: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxHeight: '90%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -659,6 +1262,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: COLORS.black,
+  },
+  modalOptions: {
+    maxHeight: 400,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  modalOptionSelected: {
+    backgroundColor: COLORS.light,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    color: COLORS.black,
+  },
+  modalOptionTextSelected: {
+    fontWeight: '600',
+    color: COLORS.primary,
   },
   modalForm: {
     maxHeight: 400,
@@ -706,6 +1332,169 @@ const styles = StyleSheet.create({
   modalBtnText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  primaryBtn: {
+    backgroundColor: COLORS.primary,
+  },
+  secondaryBtn: {
+    backgroundColor: COLORS.light,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  previewBtn: {
+    backgroundColor: COLORS.info,
+  },
+  successBtn: {
+    backgroundColor: COLORS.success,
+  },
+  required: {
+    color: COLORS.danger,
+  },
+  formInputError: {
+    borderColor: COLORS.danger,
+    borderWidth: 1,
+  },
+  errorText: {
+    color: COLORS.danger,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  photosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 8,
+  },
+  photoItem: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  photoPreview: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: COLORS.danger,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addPhotoButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.light,
+  },
+  addPhotoText: {
+    fontSize: 12,
+    color: COLORS.primary,
+    marginTop: 4,
+  },
+  codeInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  codeInput: {
+    flex: 1,
+  },
+  scanButton: {
+    padding: 10,
+    backgroundColor: COLORS.light,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  previewContent: {
+    flex: 1,
+  },
+  previewPhotos: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+    flexWrap: 'wrap',
+  },
+  previewPhoto: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
+  previewSection: {
+    marginBottom: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  previewName: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: COLORS.black,
+    marginBottom: 8,
+  },
+  previewCode: {
+    fontSize: 16,
+    color: COLORS.gray,
+    marginBottom: 12,
+    fontFamily: 'monospace',
+  },
+  previewCategory: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.light,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  previewCategoryText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.primary,
+    textTransform: 'uppercase',
+  },
+  previewDetails: {
+    gap: 16,
+  },
+  previewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  previewLabel: {
+    fontSize: 14,
+    color: COLORS.gray,
+    fontWeight: '500',
+  },
+  previewValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.black,
+  },
+  previewDescription: {
+    marginTop: 8,
+  },
+  previewDescriptionText: {
+    fontSize: 14,
+    color: COLORS.black,
+    lineHeight: 20,
+    marginTop: 4,
   },
 });
 

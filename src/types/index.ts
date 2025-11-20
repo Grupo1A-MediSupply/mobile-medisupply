@@ -15,6 +15,13 @@ export interface Client {
   address: string;
   status: 'active' | 'inactive' | 'premium';
   avatar?: string;
+  nit?: string;
+  city?: string;
+  notes?: string;
+  photo?: string;
+  latitude?: number;
+  longitude?: number;
+  clientType?: 'regular' | 'premium';
 }
 
 export interface Product {
@@ -28,6 +35,21 @@ export interface Product {
   supplier: string;
   expiryDate?: string;
   image?: string;
+  images?: string[];
+  wholesalePrice?: number;
+  specifications?: string;
+  lastStockUpdate?: string;
+  stockHistory?: StockMovement[];
+}
+
+export interface StockMovement {
+  id: string;
+  type: 'entry' | 'exit';
+  quantity: number;
+  date: string;
+  reason?: string;
+  userId?: string;
+  userName?: string;
 }
 
 export interface Order {
@@ -40,6 +62,21 @@ export interface Order {
   priority: 'high' | 'medium' | 'low';
   createdAt: string;
   updatedAt: string;
+  estimatedDeliveryDate?: string;
+  notes?: string;
+  discount?: number;
+  tax?: number;
+  subtotal?: number;
+  history?: OrderHistory[];
+}
+
+export interface OrderHistory {
+  id: string;
+  status: string;
+  date: string;
+  notes?: string;
+  userId?: string;
+  userName?: string;
 }
 
 export interface OrderProduct {
@@ -86,8 +123,15 @@ export interface StatsCard {
 
 export type RootStackParamList = {
   Login: undefined;
+  Register: undefined;
   ForgotPassword: undefined;
   Main: undefined;
+  NewClient: undefined;
+  ClientDetail: { client: Client };
+  SelectClient: undefined;
+  NewOrder: { clientId: string };
+  OrderDetail: { order: Order };
+  ProductDetail: { product: Product };
 };
 
 export type MainTabParamList = {
@@ -96,5 +140,4 @@ export type MainTabParamList = {
   Orders: undefined;
   Visits: undefined;
   Returns: undefined;
-  NewOrder: undefined;
 };

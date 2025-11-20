@@ -18,7 +18,7 @@ describe('ReturnsScreen', () => {
     );
 
     // Verificar que el input de búsqueda existe
-    expect(getByPlaceholderText('Buscar devoluciones...')).toBeTruthy();
+    expect(getByPlaceholderText('Buscar por número o cliente...')).toBeTruthy();
   });
 
   it('updates search text', () => {
@@ -26,7 +26,7 @@ describe('ReturnsScreen', () => {
       <ReturnsScreen navigation={mockNavigation} />
     );
 
-    const searchInput = getByPlaceholderText('Buscar devoluciones...');
+    const searchInput = getByPlaceholderText('Buscar por número o cliente...');
     fireEvent.changeText(searchInput, 'RET001');
 
     expect(searchInput.props.value).toBe('RET001');
@@ -38,7 +38,7 @@ describe('ReturnsScreen', () => {
     );
 
     // Verificar que la pantalla se renderiza
-    expect(getByPlaceholderText('Buscar devoluciones...')).toBeTruthy();
+    expect(getByPlaceholderText('Buscar por número o cliente...')).toBeTruthy();
   });
 });
 

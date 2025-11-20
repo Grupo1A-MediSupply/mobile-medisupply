@@ -23,7 +23,6 @@ interface ForgotPasswordScreenProps {
 const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
 
   const handleSendEmail = async () => {
     if (!email) {
@@ -33,18 +32,23 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
 
     setIsLoading(true);
     
-    // Simular envío de email
+    // Simular proceso de envío
     setTimeout(() => {
       setIsLoading(false);
-      setEmailSent(true);
+      Alert.alert('Información', 'Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña');
     }, 2000);
   };
 
   const handleResendEmail = () => {
+    if (!email) {
+      Alert.alert('Error', 'Por favor ingresa tu correo electrónico');
+      return;
+    }
+
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      Alert.alert('Éxito', 'Email reenviado correctamente');
+      Alert.alert('Información', 'Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña');
     }, 1000);
   };
 
@@ -87,88 +91,57 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
             {/* Content */}
             <View style={styles.content}>
               <View style={styles.forgotPasswordContainer}>
-                {!emailSent ? (
-                  <>
-                    {/* Icon Section */}
-                    <View style={styles.iconSection}>
-                      <MaterialIcons name="lock-reset" size={64} color={COLORS.primary} />
-                    </View>
+                {/* Icon Section */}
+                <View style={styles.iconSection}>
+                  <MaterialIcons name="lock-reset" size={64} color={COLORS.primary} />
+                </View>
 
-                    {/* Welcome Section */}
-                    <View style={styles.welcomeSection}>
-                      <Text style={styles.welcomeTitle}>¿Olvidaste tu contraseña?</Text>
-                      <Text style={styles.welcomeSubtitle}>
-                        No te preocupes, te enviaremos un enlace para restablecer tu contraseña
-                      </Text>
-                    </View>
+                {/* Welcome Section */}
+                <View style={styles.welcomeSection}>
+                  <Text style={styles.welcomeTitle}>¿Olvidaste tu contraseña?</Text>
+                  <Text style={styles.welcomeSubtitle}>
+                    Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña
+                  </Text>
+                </View>
 
-                    {/* Form */}
-                    <View style={styles.form}>
-                      <View style={styles.inputGroup}>
-                        <TextInput
-                          style={styles.input}
-                          placeholder="Correo electrónico"
-                          placeholderTextColor={COLORS.gray}
-                          value={email}
-                          onChangeText={setEmail}
-                          keyboardType="email-address"
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                        />
-                      </View>
+                {/* Form */}
+                <View style={styles.form}>
+                  <View style={styles.inputGroup}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Correo electrónico"
+                      placeholderTextColor={COLORS.gray}
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </View>
 
-                      <TouchableOpacity
-                        style={[styles.sendButton, isLoading && styles.sendButtonDisabled]}
-                        onPress={handleSendEmail}
-                        disabled={isLoading}
-                      >
-                        <Text style={styles.sendButtonText}>
-                          {isLoading ? 'Enviando...' : 'Enviar enlace'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                  <TouchableOpacity
+                    style={[styles.sendButton, isLoading && styles.sendButtonDisabled]}
+                    onPress={handleSendEmail}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.sendButtonText}>
+                      {isLoading ? 'Enviando...' : 'Enviar enlace'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
 
-                    {/* Help Section */}
-                    <View style={styles.helpSection}>
-                      <Text style={styles.helpText}>¿No recibiste el email?</Text>
-                      <TouchableOpacity onPress={handleResendEmail} disabled={isLoading}>
-                        <Text style={styles.resendLink}>
-                          {isLoading ? 'Reenviando...' : 'Reenviar email'}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={handleBackToLogin}>
-                        <Text style={styles.loginLink}>Volver al login</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                ) : (
-                  <>
-                    {/* Success Section */}
-                    <View style={styles.successSection}>
-                      <View style={styles.successIcon}>
-                        <MaterialIcons name="check-circle" size={80} color={COLORS.success} />
-                      </View>
-                      <Text style={styles.successTitle}>¡Email enviado!</Text>
-                      <Text style={styles.successDescription}>
-                        Hemos enviado un enlace de recuperación a {email}
-                      </Text>
-                      <Text style={styles.successSubtext}>
-                        Revisa tu bandeja de entrada y sigue las instrucciones para restablecer tu contraseña
-                      </Text>
-                    </View>
-
-                    <View style={styles.helpSection}>
-                      <TouchableOpacity onPress={handleResendEmail} disabled={isLoading}>
-                        <Text style={styles.resendLink}>
-                          {isLoading ? 'Reenviando...' : 'Reenviar email'}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={handleBackToLogin}>
-                        <Text style={styles.loginLink}>Volver al login</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                )}
+                {/* Help Section */}
+                <View style={styles.helpSection}>
+                  <Text style={styles.helpText}>¿No recibiste el email?</Text>
+                  <TouchableOpacity onPress={handleResendEmail} disabled={isLoading}>
+                    <Text style={styles.resendLink}>
+                      {isLoading ? 'Reenviando...' : 'Reenviar email'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleBackToLogin}>
+                    <Text style={styles.loginLink}>Volver al login</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
 

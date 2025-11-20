@@ -140,7 +140,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   {/* Signup Section */}
                   <View style={styles.signupSection}>
                     <Text style={styles.signupText}>
-                      ¿No tienes cuenta? <Text style={styles.signupLink}>Regístrate aquí</Text>
+                      ¿No tienes cuenta?{' '}
+                      <Text style={styles.signupLink} onPress={() => navigation.navigate('Register')}>
+                        Regístrate aquí
+                      </Text>
                     </Text>
                   </View>
                 </View>

@@ -23,7 +23,21 @@ interface DashboardScreenProps {
 const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
   const [searchText, setSearchText] = useState('');
   const [filter, setFilter] = useState('all');
-  const [clients, setClients] = useState<Client[]>(MOCK_DATA.clients);
+  const [clients] = useState<Client[]>(MOCK_DATA.clients);
+
+  // Filtrar clientes según búsqueda y filtro de estado
+  const filteredClients = clients.filter(client => {
+    // Filtro por estado
+    const statusMatch = filter === 'all' || client.status === filter;
+    
+    // Filtro por búsqueda (nombre, email o dirección)
+    const searchMatch = searchText === '' || 
+      client.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      (client.address && client.address.toLowerCase().includes(searchText.toLowerCase()));
+    
+    return statusMatch && searchMatch;
+  });
 
   const statsCards: StatsCard[] = [
     {
@@ -122,7 +136,10 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         </View>
       </View>
       <View style={styles.clientActions}>
-        <TouchableOpacity style={styles.actionBtn}>
+        <TouchableOpacity 
+          style={styles.actionBtn}
+          onPress={() => navigation.navigate('ClientDetail', { client: item })}
+        >
           <MaterialIcons name="edit" size={16} color={COLORS.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn}>
@@ -156,6 +173,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
       <View style={[styles.quickVisitPriority, styles[`visitPriority${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}`]]} />
     </TouchableOpacity>
   );
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -217,19 +235,32 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
         <View style={styles.clientsSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Lista de Clientes</Text>
-            <TouchableOpacity style={styles.addClientBtn}>
+            <TouchableOpacity 
+              style={styles.addClientBtn}
+              onPress={() => navigation.navigate('NewClient')}
+            >
               <MaterialIcons name="add" size={16} color={COLORS.white} />
               <Text style={styles.addClientBtnText}>Nuevo</Text>
             </TouchableOpacity>
           </View>
           
-          <FlatList
-            data={clients}
-            renderItem={renderClientItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+          {filteredClients.length > 0 ? (
+            <FlatList
+              data={filteredClients}
+              renderItem={renderClientItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <MaterialIcons name="search-off" size={48} color={COLORS.gray} />
+              <Text style={styles.emptyStateText}>No se encontraron clientes</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Intenta cambiar los filtros o la búsqueda
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Quick Visits Section */}
@@ -406,8 +437,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: 12,
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 36,
     marginBottom: 12,
+    marginHorizontal: -20,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -573,6 +606,25 @@ const styles = StyleSheet.create({
   },
   visitPriorityLow: {
     backgroundColor: COLORS.success,
+  },
+  // Empty State Styles
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    marginTop: 20,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: COLORS.gray,
+    textAlign: 'center',
   },
 });
 

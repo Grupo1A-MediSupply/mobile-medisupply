@@ -1,24 +1,24 @@
 name: 🚀 Deploy to AWS S3 + CloudFront v1
 
 on:
-  push:
-    branches: [ main, master, develop ]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'app.json'
-      - 'babel.config.js'
-      - 'tsconfig.json'
+    ##push:
+      #branches: [ main, master, develop ]
+      #paths:
+       # - 'src/**'
+   #     - 'package.json'
+   #     - 'app.json'
+   #     - 'babel.config.js'
+   #     - 'tsconfig.json'
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
+    #inputs:
+      #environment:
+        #description: 'Environment to deploy to'
+        #required: true
+        #default: 'staging'
+        #type: choice
+        #options:
+        #- staging
+        #- production
 
 env:
   AWS_REGION: us-east-1
