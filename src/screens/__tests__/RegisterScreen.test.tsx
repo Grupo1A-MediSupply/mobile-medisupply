@@ -15,6 +15,11 @@ const mockNavigation = {
 describe('RegisterScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('renders all register elements correctly', () => {
@@ -268,8 +273,6 @@ describe('RegisterScreen', () => {
   });
 
   it('navigates to login screen when registration is successful', async () => {
-    jest.useFakeTimers();
-    
     const { getByPlaceholderText, getByText } = render(
       <RegisterScreen navigation={mockNavigation} />
     );
@@ -283,52 +286,29 @@ describe('RegisterScreen', () => {
     const confirmPasswordInput = getByPlaceholderText('Confirmar contraseña');
     const registerButton = getByText('Registrarse');
 
-    // Cambiar los textos uno por uno dentro de act
-    await act(async () => {
-      fireEvent.changeText(fullNameInput, 'Juan Pérez');
-    });
-    await act(async () => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-    });
-    await act(async () => {
-      fireEvent.changeText(phoneInput, '3001234567');
-    });
-    await act(async () => {
-      fireEvent.changeText(companyInput, 'Hospital San Rafael');
-    });
-    await act(async () => {
-      fireEvent.changeText(usernameInput, 'juanperez');
-    });
-    await act(async () => {
-      fireEvent.changeText(passwordInput, 'Password123');
-    });
-    await act(async () => {
-      fireEvent.changeText(confirmPasswordInput, 'Password123');
-    });
+    // Cambiar los textos
+    fireEvent.changeText(fullNameInput, 'Juan Pérez');
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(phoneInput, '3001234567');
+    fireEvent.changeText(companyInput, 'Hospital San Rafael');
+    fireEvent.changeText(usernameInput, 'juanperez');
+    fireEvent.changeText(passwordInput, 'Password123');
+    fireEvent.changeText(confirmPasswordInput, 'Password123');
 
     // Presionar el botón
-    await act(async () => {
-      fireEvent.press(registerButton);
-    });
+    fireEvent.press(registerButton);
 
-    // Avanzar el timer dentro de act
-    await act(async () => {
-      jest.advanceTimersByTime(1500);
-    });
-
-    // Verificar que se llamó Alert.alert
-    expect(Alert.alert).toHaveBeenCalledWith(
-      'Éxito',
-      'Registro completado correctamente',
-      expect.any(Array)
-    );
-
-    jest.useRealTimers();
+    // Esperar a que se complete el registro (setTimeout es de 1500ms)
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Éxito',
+        'Registro completado correctamente',
+        expect.any(Array)
+      );
+    }, { timeout: 3000 });
   }, 10000);
 
   it('shows loading state during registration', async () => {
-    jest.useFakeTimers();
-    
     const { getByPlaceholderText, getByText } = render(
       <RegisterScreen navigation={mockNavigation} />
     );
@@ -351,10 +331,8 @@ describe('RegisterScreen', () => {
     fireEvent.changeText(confirmPasswordInput, 'Password123');
     fireEvent.press(registerButton);
 
-    // Verificar que el botón muestra el estado de carga
+    // Verificar que el botón muestra el estado de carga inmediatamente
     expect(getByText('Registrando...')).toBeTruthy();
-    
-    jest.useRealTimers();
   });
 
   it('navigates back to login when login link is pressed', () => {
