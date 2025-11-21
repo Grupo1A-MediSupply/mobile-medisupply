@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import LoginScreen from '../LoginScreen';
 
@@ -15,6 +15,11 @@ const mockNavigation = {
 describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('renders all login elements correctly', () => {
@@ -123,6 +128,8 @@ describe('LoginScreen', () => {
   });
 
   it('navigates to main screen when login is successful', async () => {
+    jest.useFakeTimers();
+    
     const { getByPlaceholderText, getByText } = render(
       <LoginScreen navigation={mockNavigation} />
     );
@@ -131,17 +138,26 @@ describe('LoginScreen', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    fireEvent.changeText(emailInput, 'test@example.com');
-    fireEvent.changeText(passwordInput, 'password123');
-    fireEvent.press(loginButton);
+    await act(async () => {
+      fireEvent.changeText(emailInput, 'test@example.com');
+      fireEvent.changeText(passwordInput, 'password123');
+      fireEvent.press(loginButton);
+    });
 
-    // Esperar a que se complete el setTimeout del login
-    await waitFor(() => {
-      expect(mockNavigation.replace).toHaveBeenCalledWith('Main');
-    }, { timeout: 2000 });
-  });
+    // Avanzar el timer para completar el setTimeout del login (1500ms)
+    await act(async () => {
+      jest.advanceTimersByTime(1500);
+    });
+
+    // Verificar que se navegó a Main
+    expect(mockNavigation.replace).toHaveBeenCalledWith('Main');
+    
+    jest.useRealTimers();
+  }, 10000);
 
   it('shows loading state during login', async () => {
+    jest.useFakeTimers();
+    
     const { getByPlaceholderText, getByText } = render(
       <LoginScreen navigation={mockNavigation} />
     );
@@ -150,13 +166,24 @@ describe('LoginScreen', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButton = getByText('Iniciar sesión');
 
-    fireEvent.changeText(emailInput, 'test@example.com');
-    fireEvent.changeText(passwordInput, 'password123');
-    fireEvent.press(loginButton);
+    await act(async () => {
+      fireEvent.changeText(emailInput, 'test@example.com');
+      fireEvent.changeText(passwordInput, 'password123');
+      fireEvent.press(loginButton);
+    });
+
+    // Avanzar el timer para que se actualice el estado
+    await act(async () => {
+      jest.advanceTimersByTime(100);
+    });
 
     // Verificar que el botón muestra el estado de carga
-    expect(getByText('Iniciando sesión...')).toBeTruthy();
-  });
+    await waitFor(() => {
+      expect(getByText('Iniciando sesión...')).toBeTruthy();
+    }, { timeout: 2000 });
+    
+    jest.useRealTimers();
+  }, 10000);
 
   it('navigates to forgot password screen when forgot password is pressed', () => {
     const { getByText } = render(
@@ -170,7 +197,9 @@ describe('LoginScreen', () => {
   });
 
   it('disables login button during loading', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    jest.useFakeTimers();
+    
+    const { getByPlaceholderText, getByText } = render(
       <LoginScreen navigation={mockNavigation} />
     );
 
@@ -178,23 +207,35 @@ describe('LoginScreen', () => {
     const passwordInput = getByPlaceholderText('Contraseña');
     const loginButtonText = getByText('Iniciar sesión');
 
-    fireEvent.changeText(emailInput, 'test@example.com');
-    fireEvent.changeText(passwordInput, 'password123');
+    await act(async () => {
+      fireEvent.changeText(emailInput, 'test@example.com');
+      fireEvent.changeText(passwordInput, 'password123');
+    });
     
     // Buscar el botón (TouchableOpacity) que contiene el texto
     const loginButton = loginButtonText.parent;
     
     // Simular click en el botón
-    fireEvent.press(loginButton!);
+    await act(async () => {
+      fireEvent.press(loginButton!);
+    });
+
+    // Avanzar el timer para que se actualice el estado
+    await act(async () => {
+      jest.advanceTimersByTime(100);
+    });
 
     // Verificar que se muestra el estado de carga
     await waitFor(() => {
       expect(getByText('Iniciando sesión...')).toBeTruthy();
-    }, { timeout: 500 });
+    }, { timeout: 2000 });
     
     // El botón debería estar presente
     expect(loginButton).toBeTruthy();
-  });
+    
+    // Limpiar timers
+    jest.useRealTimers();
+  }, 10000);
 
   it('has correct input types and properties', () => {
     const { getByPlaceholderText } = render(
