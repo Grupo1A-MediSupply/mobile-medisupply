@@ -26,4 +26,4 @@ jobs:
           # o: yarn install --frozen-lockfile
 
       - name: Run unit tests
-        run: npm run test:ci -- --passWithNoTests --forceExit --detectOpenHandles
+        run: npm test -- --ci --watchAll=false --passWithNoTests
