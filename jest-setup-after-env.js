@@ -70,3 +70,14 @@ afterAll(() => {
   console.error = originalError;
   console.warn = originalWarn;
 });
+
+// Limpiar timers después de cada test para evitar que se queden colgados
+afterEach(() => {
+  // Limpiar todos los timers pendientes
+  if (jest.isMockFunction(setTimeout)) {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  }
+  // Asegurar que estamos usando timers reales al final de cada test
+  jest.useRealTimers();
+});

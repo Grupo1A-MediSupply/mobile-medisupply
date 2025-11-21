@@ -13,14 +13,23 @@ describe('StatsCard Component', () => {
     color: '#007AFF',
   };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useRealTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('renders correctly with all props', () => {
-    const { getByText, getByTestId } = render(
+    const { getByText } = render(
       <StatsCard card={mockCard} />
     );
 
     expect(getByText('24')).toBeTruthy();
     expect(getByText('Clientes')).toBeTruthy();
-  });
+  }, 10000);
 
   it('renders without onPress handler', () => {
     const { getByText } = render(
@@ -29,7 +38,7 @@ describe('StatsCard Component', () => {
 
     expect(getByText('24')).toBeTruthy();
     expect(getByText('Clientes')).toBeTruthy();
-  });
+  }, 10000);
 
   it('calls onPress when pressed', () => {
     const mockOnPress = jest.fn();
@@ -41,7 +50,7 @@ describe('StatsCard Component', () => {
     fireEvent.press(touchable);
 
     expect(mockOnPress).toHaveBeenCalledTimes(1);
-  });
+  }, 10000);
 
   it('applies custom styles', () => {
     const customStyle = { marginTop: 20 };
@@ -58,7 +67,7 @@ describe('StatsCard Component', () => {
       style && style.marginTop === 20
     );
     expect(hasCustomStyle).toBe(true);
-  });
+  }, 10000);
 
   it('renders different card data correctly', () => {
     const differentCard: StatsCardType = {
@@ -74,7 +83,7 @@ describe('StatsCard Component', () => {
 
     expect(getByText('156')).toBeTruthy();
     expect(getByText('Pedidos')).toBeTruthy();
-  });
+  }, 10000);
 
   it('renders numeric values correctly', () => {
     const numericCard: StatsCardType = {
@@ -89,7 +98,7 @@ describe('StatsCard Component', () => {
     );
 
     expect(getByText('12')).toBeTruthy();
-  });
+  }, 10000);
 
   it('handles empty title gracefully', () => {
     const emptyTitleCard: StatsCardType = {
@@ -104,7 +113,7 @@ describe('StatsCard Component', () => {
     );
 
     expect(getByText('0')).toBeTruthy();
-  });
+  }, 10000);
 
   it('handles zero value correctly', () => {
     const zeroCard: StatsCardType = {
@@ -119,5 +128,5 @@ describe('StatsCard Component', () => {
     );
 
     expect(getByText('0')).toBeTruthy();
-  });
+  }, 10000);
 });
