@@ -15,11 +15,6 @@ describe('StatsCard Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useRealTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
   });
 
   it('renders correctly with all props', () => {
