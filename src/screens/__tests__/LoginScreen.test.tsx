@@ -142,7 +142,7 @@ describe('LoginScreen', () => {
   });
 
   it('shows loading state during login', async () => {
-    const { getByPlaceholderText, getByText } = render(
+    const { getByPlaceholderText, getByText, queryByText } = render(
       <LoginScreen navigation={mockNavigation} />
     );
 
@@ -156,7 +156,8 @@ describe('LoginScreen', () => {
 
     // Verificar que el botón muestra el estado de carga
     await waitFor(() => {
-      expect(getByText('Iniciando sesión...')).toBeTruthy();
+      const loadingText = queryByText('Iniciando sesión...');
+      expect(loadingText).toBeTruthy();
     }, { timeout: 2000 });
   });
 
@@ -172,7 +173,7 @@ describe('LoginScreen', () => {
   });
 
   it('disables login button during loading', async () => {
-    const { getByPlaceholderText, getByText } = render(
+    const { getByPlaceholderText, getByText, queryByText } = render(
       <LoginScreen navigation={mockNavigation} />
     );
 
@@ -191,7 +192,8 @@ describe('LoginScreen', () => {
 
     // Verificar que se muestra el estado de carga
     await waitFor(() => {
-      expect(getByText('Iniciando sesión...')).toBeTruthy();
+      const loadingText = queryByText('Iniciando sesión...');
+      expect(loadingText).toBeTruthy();
     }, { timeout: 2000 });
     
     // El botón debería estar presente
