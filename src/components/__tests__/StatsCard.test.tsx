@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, cleanup } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import StatsCard from '../StatsCard';
 import { StatsCard as StatsCardType } from '../../types';
 
@@ -29,10 +29,6 @@ describe('StatsCard Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    cleanup();
   });
 
   it('renders correctly with all props', () => {

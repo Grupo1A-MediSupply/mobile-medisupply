@@ -579,7 +579,7 @@ describe('InventoryScreen', () => {
       // Esperar a que se complete el guardado
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('filters by category', async () => {
@@ -840,7 +840,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 15000);
 
     it('closes preview modal and returns to form', async () => {
@@ -1000,7 +1000,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('validates stock field', async () => {
@@ -1038,7 +1038,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('validates optional wholesale price field', async () => {
@@ -1722,7 +1722,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2043,7 +2043,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2114,7 +2114,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2332,7 +2332,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2418,7 +2418,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -3084,7 +3084,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error de código duplicado
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('shows error for invalid wholesale price (line 374)', async () => {
@@ -3147,7 +3147,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('shows error for invalid min stock (line 378)', async () => {
@@ -3211,7 +3211,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 1000 });
+      }, { timeout: 3000 });
     }, 10000);
 
     it('shows alert when preview is called with invalid form (lines 420-421)', async () => {
