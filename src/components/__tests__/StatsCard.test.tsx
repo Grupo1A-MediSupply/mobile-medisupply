@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, cleanup } from '@testing-library/react-native';
 import StatsCard from '../StatsCard';
 import { StatsCard as StatsCardType } from '../../types';
 
@@ -16,8 +16,8 @@ jest.mock('@expo/vector-icons', () => ({
   MaterialIcons: 'MaterialIcons',
 }));
 
-// Aumentar timeout para este archivo
-jest.setTimeout(30000);
+// Timeout optimizado para este archivo
+jest.setTimeout(15000);
 
 describe('StatsCard Component', () => {
   const mockCard: StatsCardType = {
@@ -29,6 +29,10 @@ describe('StatsCard Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('renders correctly with all props', () => {

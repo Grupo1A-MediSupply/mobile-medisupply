@@ -196,7 +196,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Nuevo Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       const cancelButton = getByText('Cancelar');
       await act(async () => {
@@ -205,7 +205,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(queryByText('Nuevo Producto')).toBeNull();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('opens category filter modal', async () => {
@@ -243,7 +243,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si no encontramos el botón, intentar con el segundo botón de filtro
         const filterButtons = getAllByText(/Todo|Todas/);
@@ -254,7 +254,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -364,7 +364,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Nuevo Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       const categorySelect = getByText('Seleccionar categoría');
       await act(async () => {
@@ -374,7 +374,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal se abra
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Seleccionar una categoría
       const categoryOption = getByText('Medicamentos');
@@ -509,7 +509,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -522,11 +522,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -538,7 +538,7 @@ describe('InventoryScreen', () => {
       // Verificar que el modal de vista previa se abre
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('saves product successfully', async () => {
@@ -579,7 +579,7 @@ describe('InventoryScreen', () => {
       // Esperar a que se complete el guardado
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('filters by category', async () => {
@@ -625,7 +625,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Seleccionar filtro de stock bajo
         // "Stock Bajo" aparece tanto en el botón como en el modal, usar getAllByText
@@ -647,7 +647,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -801,7 +801,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -814,11 +814,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -830,7 +830,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 5000 });
+      }, { timeout: 1000 });
 
       // Guardar y agregar otro
       const saveAndAddButton = getByText('Guardar y Agregar Otro');
@@ -840,8 +840,8 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 5000 });
-    }, 20000);
+      }, { timeout: 1000 });
+    }, 15000);
 
     it('closes preview modal and returns to form', async () => {
       const { getByText, getByPlaceholderText, getAllByPlaceholderText, queryByText } = render(
@@ -874,7 +874,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -887,11 +887,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -903,7 +903,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Volver al formulario
       const backButton = getByText('Volver');
@@ -914,7 +914,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modal = queryByText('Vista Previa del Producto');
         return modal === null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('removes photo from form', async () => {
@@ -952,7 +952,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           // Verificar que ImagePicker fue llamado, lo que significa que se intentó agregar fotos
           expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
         
         // Verificar que el botón "Agregar" aún existe (o no, dependiendo de cuántas fotos se agregaron)
         // Si se agregaron 2 fotos, el botón debería seguir existiendo
@@ -1000,7 +1000,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('validates stock field', async () => {
@@ -1038,7 +1038,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('validates optional wholesale price field', async () => {
@@ -1167,14 +1167,14 @@ describe('InventoryScreen', () => {
         
         await waitFor(() => {
           expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
         
         // Resetear el mock para la siguiente iteración
         (ImagePicker.launchImageLibraryAsync as jest.Mock).mockClear();
         
         // Dar tiempo para que el estado se actualice
         await act(async () => {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 10));
         });
         
         // Re-buscar el botón después de cada iteración
@@ -1199,7 +1199,7 @@ describe('InventoryScreen', () => {
           });
           await waitFor(() => {
             expect(Alert.alert).toHaveBeenCalledWith('Límite alcanzado', 'Solo puedes agregar un máximo de 5 fotos');
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           // Si el botón ya no existe, significa que se alcanzó el límite correctamente
           // Verificamos que se agregaron 5 fotos (el botón desaparece)
@@ -1251,7 +1251,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Nuevo Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Simular onRequestClose del modal usando el botón Cancelar
       // que también cierra el modal y resetea el formulario (líneas 432-443)
@@ -1263,7 +1263,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal se cierre
       await waitFor(() => {
         expect(queryByText('Nuevo Producto')).toBeNull();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('selects all filter options', async () => {
@@ -1297,12 +1297,12 @@ describe('InventoryScreen', () => {
             await waitFor(() => {
               const modal = queryByText('Filtrar por Categoría');
               return modal === null;
-            }, { timeout: 2000 });
+            }, { timeout: 1000 });
             // Abrir modal nuevamente para probar otra opción
             if (category !== categories[categories.length - 1]) {
               // Dar tiempo para que el estado se actualice
               await act(async () => {
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 50));
               });
               // Buscar el botón de categoría actualizado - el primer botón de filtro
               const updatedCategoryButtons = getAllByText(/Categoría|Todas|Medicamentos|Equipos Médicos|Insumos|Protección/);
@@ -1313,7 +1313,7 @@ describe('InventoryScreen', () => {
                 });
                 await waitFor(() => {
                   expect(getByText('Filtrar por Categoría')).toBeTruthy();
-                }, { timeout: 2000 });
+                }, { timeout: 1000 });
               }
             }
           }
@@ -1346,7 +1346,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Seleccionar diferentes opciones de stock
         const stockOptions = ['Todo', 'Stock Bajo', 'Stock Normal', 'Stock Alto'];
@@ -1357,7 +1357,7 @@ describe('InventoryScreen', () => {
           if (i > 0) {
             // Dar tiempo para que el estado se actualice
             await act(async () => {
-              await new Promise(resolve => setTimeout(resolve, 300));
+              await new Promise(resolve => setTimeout(resolve, 50));
             });
             
             // Re-buscar el botón de stock después de cambiar el filtro
@@ -1384,7 +1384,7 @@ describe('InventoryScreen', () => {
               });
               // Dar tiempo para que el modal se abra
               await act(async () => {
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise(resolve => setTimeout(resolve, 50));
               });
             }
           }
@@ -1394,7 +1394,7 @@ describe('InventoryScreen', () => {
           if (!stockModal) {
             // Si el modal no está abierto, esperar un poco más
             await act(async () => {
-              await new Promise(resolve => setTimeout(resolve, 200));
+              await new Promise(resolve => setTimeout(resolve, 50));
             });
             stockModal = queryByText('Filtrar por Stock');
           }
@@ -1418,7 +1418,7 @@ describe('InventoryScreen', () => {
               await waitFor(() => {
                 const catModal = queryByText('Filtrar por Categoría');
                 return catModal === null;
-              }, { timeout: 2000 });
+              }, { timeout: 1000 });
             }
           }
           
@@ -1443,14 +1443,14 @@ describe('InventoryScreen', () => {
             await waitFor(() => {
               const modal = queryByText('Filtrar por Stock');
               return modal === null;
-            }, { timeout: 2000 });
+            }, { timeout: 1000 });
           }
         }
       } else {
         // Si no hay suficientes botones, al menos verificamos que la pantalla se renderiza
         expect(getByText('Gestión de Inventario')).toBeTruthy();
       }
-    }, 20000);
+    }, 15000);
 
     it('selects all sort options', async () => {
       const { getByText, getAllByText, queryByText } = render(
@@ -1466,7 +1466,7 @@ describe('InventoryScreen', () => {
 
         await waitFor(() => {
           expect(getByText('Ordenar por')).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Seleccionar diferentes opciones de ordenamiento
         const sortOptions = ['Por Nombre', 'Por Precio', 'Por Stock', 'Por Categoría'];
@@ -1483,12 +1483,12 @@ describe('InventoryScreen', () => {
             await waitFor(() => {
               const modal = queryByText('Ordenar por');
               return modal === null;
-            }, { timeout: 2000 });
+            }, { timeout: 1000 });
             // Abrir modal nuevamente para probar otra opción
             if (option !== sortOptions[sortOptions.length - 1]) {
               // Dar tiempo para que el estado se actualice
               await act(async () => {
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 50));
               });
               // Buscar el botón de ordenar actualizado (puede mostrar cualquier opción de sort)
               const updatedSortButtons = getAllByText(/Ordenar|Por Nombre|Por Precio|Por Stock|Por Categoría/);
@@ -1501,7 +1501,7 @@ describe('InventoryScreen', () => {
                 });
                 await waitFor(() => {
                   expect(getByText('Ordenar por')).toBeTruthy();
-                }, { timeout: 2000 });
+                }, { timeout: 1000 });
               }
             }
           }
@@ -1542,7 +1542,7 @@ describe('InventoryScreen', () => {
             });
             // Dar tiempo para que el estado se actualice
             await act(async () => {
-              await new Promise(resolve => setTimeout(resolve, 300));
+              await new Promise(resolve => setTimeout(resolve, 50));
             });
           }
         }
@@ -1551,7 +1551,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const modal = queryByText('Filtrar por Categoría');
           return modal === null;
-        }, { timeout: 3000 });
+        }, { timeout: 1000 });
       }
     });
 
@@ -1625,7 +1625,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -1638,11 +1638,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -1657,7 +1657,7 @@ describe('InventoryScreen', () => {
         expect(getByText('Producto Completo Test')).toBeTruthy();
         // El código aparece como "Código: TEST999" en el preview
         expect(getByText(/TEST999/)).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     // Tests adicionales para cubrir líneas específicas: 404-634, 678-684, 756-778, 840, 862, 935
@@ -1722,7 +1722,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -1758,7 +1758,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -1771,11 +1771,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -1787,7 +1787,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Simular onRequestClose (back button en Android)
       // Buscar el Modal component que contiene "Vista Previa del Producto"
@@ -1804,7 +1804,7 @@ describe('InventoryScreen', () => {
         });
         // Dar tiempo para que el estado se actualice
         await act(async () => {
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 50));
         });
       }
 
@@ -1814,7 +1814,7 @@ describe('InventoryScreen', () => {
         const addModal = queryByText('Nuevo Producto');
         // El preview debería estar cerrado y el add modal debería estar abierto
         return previewModal === null && addModal !== null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('closes preview modal using close button (line 684)', async () => {
@@ -1848,7 +1848,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -1861,11 +1861,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -1877,7 +1877,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Cerrar usando el botón de cerrar del header
       const modalTitle = getByText('Vista Previa del Producto');
@@ -1895,7 +1895,7 @@ describe('InventoryScreen', () => {
           });
           // Dar tiempo para que el estado se actualice
           await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 50));
           });
         }
       }
@@ -1906,7 +1906,7 @@ describe('InventoryScreen', () => {
         const addModal = queryByText('Nuevo Producto');
         // El preview debería estar cerrado y el add modal debería estar abierto
         return previewModal === null && addModal !== null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('handles preview modal buttons - Volver (line 756)', async () => {
@@ -1940,7 +1940,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -1953,11 +1953,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -1969,7 +1969,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Presionar botón Volver
       const backButton = getByText('Volver');
@@ -1979,7 +1979,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(queryByText('Vista Previa del Producto')).toBeNull();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('handles preview modal buttons - Guardar y Agregar Otro (line 762)', async () => {
@@ -2043,7 +2043,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2114,7 +2114,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2164,7 +2164,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si no encontramos el botón, intentar con el segundo botón de filtro
         const filterButtons = getAllByText(/Todo|Todas/);
@@ -2175,7 +2175,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -2197,7 +2197,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Verificar que todas las opciones de stock están presentes
         // Usar getAllByText para elementos que pueden aparecer múltiples veces
@@ -2209,7 +2209,7 @@ describe('InventoryScreen', () => {
           expect(stockBajoOptions.length).toBeGreaterThan(0);
           expect(getByText('Stock Normal')).toBeTruthy();
           expect(getByText('Stock Alto')).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si no encontramos el botón, intentar con el segundo botón de filtro
         const filterButtons = getAllByText(/Todo|Todas/);
@@ -2220,7 +2220,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -2332,7 +2332,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2376,7 +2376,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -2389,11 +2389,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -2405,7 +2405,7 @@ describe('InventoryScreen', () => {
       // Presionar "Guardar" (línea 778) - hay múltiples botones "Guardar", necesitamos el del preview modal
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       const allSaveButtons = getAllByText('Guardar');
       // El último botón "Guardar" debería ser el del preview modal
@@ -2418,7 +2418,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2454,7 +2454,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -2467,11 +2467,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -2483,7 +2483,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Simular onRequestClose del modal (back button en Android)
       const modal = getByText('Vista Previa del Producto').parent?.parent?.parent;
@@ -2497,7 +2497,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modalAfter = queryByText('Vista Previa del Producto');
         return !modalAfter || modalAfter === null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('covers preview modal close button (line 684)', async () => {
@@ -2571,7 +2571,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modalAfter = queryByText('Vista Previa del Producto');
         return !modalAfter || modalAfter === null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('covers preview modal Volver button (line 756)', async () => {
@@ -2605,7 +2605,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -2618,11 +2618,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return !categoryModal;
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 50));
       });
 
       // Abrir vista previa
@@ -2635,7 +2635,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const previewModal = getByText('Vista Previa del Producto');
         expect(previewModal).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
 
       // Presionar botón "Volver" (línea 756)
       const backButton = getByText('Volver');
@@ -2647,7 +2647,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modalAfter = queryByText('Vista Previa del Producto');
         return modalAfter === null;
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('covers clear search button (line 840)', async () => {
@@ -2721,7 +2721,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si no encontramos el botón, intentar con el segundo botón de filtro
         const filterButtons = getAllByText(/Todo|Todas/);
@@ -2732,7 +2732,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -2755,7 +2755,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Verificar que las opciones están presentes
         // Usar getAllByText para elementos que pueden aparecer múltiples veces
@@ -2767,7 +2767,7 @@ describe('InventoryScreen', () => {
           expect(stockBajoOptions.length).toBeGreaterThan(0);
           expect(getByText('Stock Normal')).toBeTruthy();
           expect(getByText('Stock Alto')).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si no encontramos el botón, intentar con el segundo botón de filtro
         const filterButtons = getAllByText(/Todo|Todas/);
@@ -2778,7 +2778,7 @@ describe('InventoryScreen', () => {
           await waitFor(() => {
             const stockModal = queryByText('Filtrar por Stock');
             expect(stockModal).toBeTruthy();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
         } else {
           expect(getByText('Gestión de Inventario')).toBeTruthy();
         }
@@ -2801,7 +2801,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Seleccionar filtro de stock normal (stock >= 10 && stock < 50)
         const stockNormalOption = getByText('Stock Normal');
@@ -2828,7 +2828,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           const stockModal = queryByText('Filtrar por Stock');
           expect(stockModal).toBeTruthy();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Seleccionar filtro de stock alto (stock >= 50)
         const stockAltoOption = getByText('Stock Alto');
@@ -2924,10 +2924,10 @@ describe('InventoryScreen', () => {
           });
           await waitFor(() => {
             expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-          }, { timeout: 2000 });
+          }, { timeout: 1000 });
           // Dar tiempo para que el estado se actualice
           await act(async () => {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 10));
           });
         }
       }
@@ -2947,10 +2947,10 @@ describe('InventoryScreen', () => {
         });
         await waitFor(() => {
           expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
         // Dar tiempo para que el estado se actualice
         await act(async () => {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 10));
         });
       }
 
@@ -2966,7 +2966,7 @@ describe('InventoryScreen', () => {
         // Verificar que se muestra el alert cuando se intenta agregar más de 5 fotos (líneas 289-290)
         await waitFor(() => {
           expect(alertSpy).toHaveBeenCalledWith('Límite alcanzado', 'Solo puedes agregar un máximo de 5 fotos');
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
       } else {
         // Si el botón ya no existe, significa que se alcanzó el límite correctamente
         // Para cubrir las líneas 289-290, necesitamos simular que se intenta agregar una foto más
@@ -3008,7 +3008,7 @@ describe('InventoryScreen', () => {
 
         await waitFor(() => {
           expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Buscar el botón de remover foto (TouchableOpacity con onPress que ejecuta handleRemovePhoto)
         // El botón de remover está dentro de cada foto agregada (línea 460)
@@ -3016,7 +3016,7 @@ describe('InventoryScreen', () => {
         await waitFor(() => {
           // Verificar que las fotos se agregaron
           expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
-        }, { timeout: 2000 });
+        }, { timeout: 1000 });
 
         // Verificar que las fotos se agregaron correctamente
         // El botón de remover está renderizado en línea 460 y ejecuta handleRemovePhoto (líneas 316-317)
@@ -3056,7 +3056,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Usar getAllByText porque "Protección" aparece en la lista de productos y en el modal
       const protectionOptions = getAllByText('Protección');
@@ -3084,7 +3084,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error de código duplicado
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('shows error for invalid wholesale price (line 374)', async () => {
@@ -3112,7 +3112,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Usar getAllByText porque "Protección" aparece en la lista de productos y en el modal
       const protectionOptions = getAllByText('Protección');
@@ -3147,7 +3147,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('shows error for invalid min stock (line 378)', async () => {
@@ -3175,7 +3175,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Usar getAllByText porque "Protección" aparece en la lista de productos y en el modal
       const protectionOptions = getAllByText('Protección');
@@ -3211,7 +3211,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el error
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('shows alert when preview is called with invalid form (lines 420-421)', async () => {
@@ -3234,7 +3234,7 @@ describe('InventoryScreen', () => {
       // Verificar que se muestra el alert de error
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalledWith('Error', 'Por favor completa los campos obligatorios');
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       alertSpy.mockRestore();
     });
@@ -3266,7 +3266,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modal = queryByText('Nuevo Producto');
         expect(modal).toBeNull();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('closes preview modal when close button is pressed (line 684)', async () => {
@@ -3294,7 +3294,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Usar getAllByText porque "Protección" aparece en la lista de productos y en el modal
       const protectionOptions = getAllByText('Protección');
@@ -3321,7 +3321,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
 
       // Presionar el botón de cerrar (TouchableOpacity) en el header del modal (línea 684)
       // El botón de cerrar está en el header del modal de preview y ejecuta setShowPreviewModal(false)
@@ -3336,7 +3336,7 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const modal = queryByText('Vista Previa del Producto');
         expect(modal).toBeNull();
-      }, { timeout: 2000 });
+      }, { timeout: 1000 });
     }, 10000);
 
     it('clears search text when clear button is pressed (line 840)', async () => {

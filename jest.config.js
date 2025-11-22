@@ -39,7 +39,7 @@ module.exports = {
   },
   setupFilesAfterEnv: ['<rootDir>/jest-setup-after-env.js'],
   testTimeout: process.env.CI ? 15000 : 30000, // 15 segundos en CI, 30 en local
-  maxWorkers: process.env.CI ? 1 : '50%', // 1 worker en CI para evitar problemas de recursos y cuelgues
+  maxWorkers: process.env.CI ? 2 : '50%', // 2 workers en CI para balance entre velocidad y estabilidad
   // Configuración para mejorar el rendimiento y evitar cuelgues
   bail: false, // No detener en el primer error
   cache: process.env.CI ? false : true, // Desactivar caché en CI para evitar problemas
