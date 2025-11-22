@@ -28,11 +28,14 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   setupFilesAfterEnv: ['<rootDir>/jest-setup-after-env.js'],
-  testTimeout: 30000, // 30 segundos por test
+  testTimeout: process.env.CI ? 20000 : 30000, // 20 segundos en CI, 30 en local
   maxWorkers: process.env.CI ? 2 : '50%', // Limitar workers en CI para evitar problemas de recursos
   // Configuración para mejorar el rendimiento y evitar cuelgues
   bail: false, // No detener en el primer error
   cache: true, // Usar caché para acelerar ejecuciones subsecuentes
   forceExit: false, // No forzar salida (puede causar problemas)
   detectOpenHandles: false, // Desactivar detección de handles abiertos (más rápido)
+  // Optimizaciones para CI
+  logHeapUsage: false, // No mostrar uso de heap (más rápido)
+  verbose: false, // No mostrar output detallado (más rápido)
 };

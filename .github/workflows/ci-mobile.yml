@@ -26,4 +26,5 @@ jobs:
           # o: yarn install --frozen-lockfile
 
       - name: Run unit tests
-        run: npm test -- --ci --watchAll=false --passWithNoTests
+        timeout-minutes: 5
+        run: npm test -- --ci --watchAll=false --passWithNoTests --maxWorkers=2
