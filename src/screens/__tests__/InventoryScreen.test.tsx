@@ -326,10 +326,8 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveButton);
       });
 
-      // Verificar que se muestra el alert de error
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      });
+      // Verificar que se muestra el alert de error (se llama inmediatamente sin setTimeout)
+      expect(Alert.alert).toHaveBeenCalled();
     });
 
     it('opens category select modal from form', async () => {
@@ -436,9 +434,8 @@ describe('InventoryScreen', () => {
           fireEvent.press(addPhotoButtons[0]);
         });
 
-        await waitFor(() => {
-          expect(Alert.alert).toHaveBeenCalled();
-        });
+        // El Alert se llama inmediatamente en handleScanBarcode
+        expect(Alert.alert).toHaveBeenCalled();
       }
     });
 
@@ -577,9 +574,11 @@ describe('InventoryScreen', () => {
       });
 
       // Esperar a que se complete el guardado
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('filters by category', async () => {
@@ -764,10 +763,8 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveButton);
       });
 
-      // Verificar que se muestra error de código duplicado
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      });
+      // Verificar que se muestra error de código duplicado (se llama inmediatamente)
+      expect(Alert.alert).toHaveBeenCalled();
     });
 
     it('handles save and add another from preview modal', async () => {
@@ -838,9 +835,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveAndAddButton);
       });
 
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 15000);
 
     it('closes preview modal and returns to form', async () => {
@@ -998,9 +997,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveButton);
       });
 
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('validates stock field', async () => {
@@ -1036,9 +1037,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveButton);
       });
 
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('validates optional wholesale price field', async () => {
@@ -1720,9 +1723,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveAndAddButton);
       });
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(alertSpy).toHaveBeenCalled();
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2041,9 +2046,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveAndAddButton);
       });
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(alertSpy).toHaveBeenCalled();
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2112,9 +2119,11 @@ describe('InventoryScreen', () => {
         });
       }
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(alertSpy).toHaveBeenCalled();
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2330,9 +2339,11 @@ describe('InventoryScreen', () => {
         fireEvent.press(saveAndAddButton);
       });
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(alertSpy).toHaveBeenCalled();
 
       alertSpy.mockRestore();
     }, 10000);
@@ -2416,9 +2427,11 @@ describe('InventoryScreen', () => {
         });
       }
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(alertSpy).toHaveBeenCalled();
 
       alertSpy.mockRestore();
     }, 10000);
@@ -3082,9 +3095,11 @@ describe('InventoryScreen', () => {
       });
 
       // Verificar que se muestra el error de código duplicado
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('shows error for invalid wholesale price (line 374)', async () => {
@@ -3145,9 +3160,11 @@ describe('InventoryScreen', () => {
       });
 
       // Verificar que se muestra el error
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('shows error for invalid min stock (line 378)', async () => {
@@ -3209,9 +3226,11 @@ describe('InventoryScreen', () => {
       });
 
       // Verificar que se muestra el error
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 3000 });
+      // El Alert se llama después de un setTimeout de 1000ms, esperamos un poco más
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      });
+      expect(Alert.alert).toHaveBeenCalled();
     }, 10000);
 
     it('shows alert when preview is called with invalid form (lines 420-421)', async () => {
