@@ -21,7 +21,9 @@ module.exports = {
     '!src/**/*.stories.{ts,tsx}',
     '!src/**/index.ts',
   ],
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: process.env.CI 
+    ? ['text', 'lcov'] // Solo text y lcov en CI para ser más rápido
+    : ['text', 'lcov', 'html'], // Incluir HTML solo en local
   coverageThreshold: {
     global: {
       branches: 70,
