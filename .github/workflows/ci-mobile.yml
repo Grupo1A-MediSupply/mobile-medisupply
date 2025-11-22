@@ -24,5 +24,5 @@ jobs:
         run: npm ci
 
       - name: Run unit tests with coverage
-        timeout-minutes: 5
-        run: npm test -- --ci --watchAll=false --passWithNoTests
+        timeout-minutes: 3
+        run: npm test -- --ci --coverage --watchAll=false --passWithNoTests --forceExit --maxWorkers=1 --testTimeout=15000
