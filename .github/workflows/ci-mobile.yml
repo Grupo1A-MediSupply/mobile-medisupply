@@ -25,4 +25,4 @@ jobs:
 
       - name: Run unit tests with coverage
         timeout-minutes: 5
-        run: npm test -- --ci --coverage --watchAll=false --passWithNoTests --forceExit --maxWorkers=2
+        run: nnpm test -- --ci --watchAll=false --passWithNoTests
