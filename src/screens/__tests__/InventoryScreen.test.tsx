@@ -801,7 +801,7 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(getByText('Seleccionar Categoría')).toBeTruthy();
-      }, { timeout: 2000 });
+      }, { timeout: 3000 });
 
       const categoryOption = getByText('Medicamentos');
       if (categoryOption) {
@@ -814,11 +814,11 @@ describe('InventoryScreen', () => {
       await waitFor(() => {
         const categoryModal = queryByText('Seleccionar Categoría');
         return categoryModal === null;
-      }, { timeout: 2000 });
+      }, { timeout: 3000 });
 
       // Dar tiempo para que el estado se actualice
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 300));
       });
 
       // Abrir vista previa
@@ -830,7 +830,7 @@ describe('InventoryScreen', () => {
       // Esperar a que el modal de preview se abra
       await waitFor(() => {
         expect(getByText('Vista Previa del Producto')).toBeTruthy();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
 
       // Guardar y agregar otro
       const saveAndAddButton = getByText('Guardar y Agregar Otro');
@@ -840,8 +840,8 @@ describe('InventoryScreen', () => {
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalled();
-      }, { timeout: 2000 });
-    }, 10000);
+      }, { timeout: 5000 });
+    }, 20000);
 
     it('closes preview modal and returns to form', async () => {
       const { getByText, getByPlaceholderText, getAllByPlaceholderText, queryByText } = render(

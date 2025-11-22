@@ -22,6 +22,14 @@ module.exports = {
     '!src/**/index.ts',
   ],
   coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
@@ -38,4 +46,6 @@ module.exports = {
   // Optimizaciones para CI
   logHeapUsage: false, // No mostrar uso de heap (más rápido)
   verbose: false, // No mostrar output detallado (más rápido)
+  // Optimizaciones adicionales para CI
+  maxConcurrency: process.env.CI ? 2 : 5, // Limitar concurrencia en CI
 };
