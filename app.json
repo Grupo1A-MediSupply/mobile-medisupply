@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "MediSupply",
+    "slug": "medisupply",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/MediSupply.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/MediSupply.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4A90E2"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.medisupply.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/MediSupply.png",
+        "backgroundColor": "#4A90E2"
+      },
+      "package": "com.medisupply.app",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/MediSupply.png"
+    }
+  }
+}

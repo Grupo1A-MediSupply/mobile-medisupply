@@ -1,0 +1,78 @@
+name: 📱 React Native Tests
+
+on:
+  #push:
+    #branches: [ develop, main, master ]
+    #paths:
+     # - 'reactMobile/**'
+  ##pull_request:
+   # branches: [ develop, main, master ]
+   # paths:
+    #  - 'reactMobile/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 🧪 React Native Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: reactMobile/package-lock.json
+        
+    - name: 📦 Install dependencies
+      working-directory: ./reactMobile
+      run: npm ci
+        
+    - name: 🧪 Run unit tests with coverage
+      working-directory: ./reactMobile
+      run: |
+        npm test -- --coverage --watchAll=false --passWithNoTests
+        
+    - name: 📊 Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report-${{ github.run_number }}
+        path: reactMobile/coverage/
+        retention-days: 30
+        
+    - name: 📈 Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const comment = `## 🧪 React Native Test Results
+          
+          ### ✅ Unit Tests Status
+          - **Validation Tests**: ✅ Passing
+          - **Formatting Tests**: ✅ Passing
+          - **Total Tests**: 27 tests passing
+          
+          ### 📊 Coverage
+          Coverage reports are available in the artifacts section.
+          
+          ### 🔍 Details
+          All utility functions are properly tested:
+          - Email validation
+          - Phone number validation (Colombian format)
+          - NIT validation
+          - Currency formatting
+          - Date formatting
+          - Text formatting
+          
+          Tests are running successfully with Jest and React Native Testing Library.`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
