@@ -12,7 +12,14 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false --passWithNoTests --forceExit"
+    "test:ci": "jest --ci --coverage --watchAll=false --passWithNoTests --forceExit",
+    "test:e2e": "node scripts/run-e2e.js",
+    "test:e2e:login": "node scripts/run-e2e.js login-simple.yaml",
+    "test:e2e:navigation": "node scripts/run-e2e.js navigation.yaml",
+    "test:e2e:dashboard": "node scripts/run-e2e.js dashboard.yaml",
+    "test:e2e:inventory": "node scripts/run-e2e.js inventory.yaml",
+    "test:e2e:orders": "node scripts/run-e2e.js orders.yaml",
+    "install:maestro": "powershell -ExecutionPolicy Bypass -File scripts/install-maestro.ps1"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

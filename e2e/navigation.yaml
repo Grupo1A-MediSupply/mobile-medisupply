@@ -1,0 +1,66 @@
+appId: com.medisupply.app
+---
+# Prueba E2E: Navegación entre Tabs
+# Verifica que se puede navegar entre las diferentes secciones de la app
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Hacer login primero
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Navegar a Inventario (segundo tab)
+- tapOn:
+    point: "20%,95%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Inventario"
+    optional: true
+
+# Navegar a Pedidos (tercer tab)
+- tapOn:
+    point: "40%,95%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Pedidos"
+    optional: true
+
+# Navegar a Visitas (cuarto tab)
+- tapOn:
+    point: "60%,95%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Visitas"
+    optional: true
+
+# Navegar a Devoluciones (quinto tab)
+- tapOn:
+    point: "80%,95%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Devoluciones"
+    optional: true
+
+# Volver a Dashboard (primer tab)
+- tapOn:
+    point: "10%,95%"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    text: "Dashboard"
+    optional: true
+

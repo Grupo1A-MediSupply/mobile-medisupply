@@ -2,7 +2,7 @@ name: CD Android
 
 on:
   push:
-    branches: [ main, develop, feature/auth, release ]
+    branches: [ main, develop, feature/auth, feature/predevelop, release ]
   workflow_run:
     workflows: ["CI Mobile"]
     types: [completed]

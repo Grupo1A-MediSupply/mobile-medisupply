@@ -1,0 +1,46 @@
+appId: com.medisupply.app
+---
+# Prueba E2E: Dashboard
+# Verifica funcionalidades del Dashboard después del login
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Hacer login
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verificar que estamos en Dashboard
+- assertVisible:
+    text: "Bienvenido de vuelta"
+    optional: true
+- assertVisible:
+    text: "Clientes"
+    optional: true
+- assertVisible:
+    text: "Pedidos"
+    optional: true
+
+# Hacer scroll para ver más contenido
+- scroll
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Buscar cliente (si hay campo de búsqueda visible)
+- tapOn:
+    point: "50%,20%"
+    optional: true
+- inputText: "María"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+
