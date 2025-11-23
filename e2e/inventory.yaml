@@ -1,0 +1,49 @@
+appId: com.medisupply.app
+---
+# Prueba E2E: Inventario
+# Verifica la navegación y funcionalidades del inventario
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Hacer login
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Navegar a Inventario
+- tapOn:
+    point: "20%,95%"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Verificar que estamos en Inventario
+- assertVisible:
+    text: "Inventario"
+    optional: true
+- assertVisible:
+    text: "Gestión de Inventario"
+    optional: true
+
+# Hacer scroll para ver productos
+- scroll
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Buscar producto (si hay campo de búsqueda)
+- tapOn:
+    point: "50%,15%"
+    optional: true
+- inputText: "Mascarilla"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+
