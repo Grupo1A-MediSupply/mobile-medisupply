@@ -70,3 +70,24 @@ afterAll(() => {
   console.error = originalError;
   console.warn = originalWarn;
 });
+
+// Limpiar timers después de cada test para evitar que se queden colgados
+afterEach(() => {
+  // Solo restaurar timers reales si no estamos usando fake timers activamente
+  // Esto evita interferir con tests que usan jest.useFakeTimers()
+  try {
+    // Verificar si hay timers fake activos
+    const fakeTimersActive = jest.isMockFunction(setTimeout) || jest.isMockFunction(setInterval);
+    if (fakeTimersActive) {
+      // Si hay fake timers, limpiarlos pero no restaurar reales aquí
+      // El test individual debe hacerlo
+      jest.clearAllTimers();
+    } else {
+      // Si no hay fake timers, asegurar que estamos usando reales
+      jest.useRealTimers();
+    }
+  } catch (e) {
+    // Si hay algún error, simplemente restaurar timers reales
+    jest.useRealTimers();
+  }
+});

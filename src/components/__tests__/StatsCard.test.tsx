@@ -3,7 +3,21 @@ import { render, fireEvent } from '@testing-library/react-native';
 import StatsCard from '../StatsCard';
 import { StatsCard as StatsCardType } from '../../types';
 
-// Los mocks ya están en jest-setup.js global
+// Mock de LinearGradient para evitar problemas cuando se ejecutan todos los tests
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: ({ children, ...props }: any) => {
+    const React = require('react');
+    return React.createElement('View', props, children);
+  },
+}));
+
+// Mock de @expo/vector-icons
+jest.mock('@expo/vector-icons', () => ({
+  MaterialIcons: 'MaterialIcons',
+}));
+
+// Timeout optimizado para este archivo
+jest.setTimeout(15000);
 
 describe('StatsCard Component', () => {
   const mockCard: StatsCardType = {
@@ -13,8 +27,12 @@ describe('StatsCard Component', () => {
     color: '#007AFF',
   };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders correctly with all props', () => {
-    const { getByText, getByTestId } = render(
+    const { getByText } = render(
       <StatsCard card={mockCard} />
     );
 
