@@ -1,0 +1,26 @@
+appId: com.medisupply.app
+---
+# Prueba E2E de Login Simplificada
+# Usa coordenadas para evitar errores cuando los testID no funcionan
+
+- launchApp
+# Esperar para que la app se inicialice completamente
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Intentar hacer login usando coordenadas (más confiable)
+# Campo de email - aproximadamente en el centro superior de la pantalla
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+
+# Campo de contraseña - un poco más abajo
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+
+# Botón de login - más abajo en la pantalla
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000

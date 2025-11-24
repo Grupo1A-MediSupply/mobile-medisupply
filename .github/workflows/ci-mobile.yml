@@ -21,9 +21,10 @@ jobs:
           cache: 'npm'              # o 'yarn'
 
       - name: Install dependencies
-        run: |
-          npm install
-          # o: yarn install --frozen-lockfile
+        run: npm ci
 
-      - name: Run unit tests
-        run: npm test -- --ci --watchAll=false --passWithNoTests
+      - name: Run unit tests with coverage
+        timeout-minutes: 5
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'  # 8GB de memoria para Node.js
+        run: npm test -- --ci --coverage --watchAll=false --passWithNoTests --forceExit
