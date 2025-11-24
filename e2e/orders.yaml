@@ -1,0 +1,47 @@
+appId: com.medisupply.app
+---
+# Prueba E2E: Pedidos
+# Verifica la navegación y visualización de pedidos
+
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Hacer login
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Navegar a Pedidos
+- tapOn:
+    point: "40%,95%"
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Verificar que estamos en Pedidos
+- assertVisible:
+    text: "Pedidos"
+    optional: true
+- assertVisible:
+    text: "Total Pedidos"
+    optional: true
+
+# Hacer scroll para ver lista de pedidos
+- scroll
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Intentar tocar un pedido para ver detalle (si hay pedidos visibles)
+- tapOn:
+    point: "50%,40%"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 2000
+

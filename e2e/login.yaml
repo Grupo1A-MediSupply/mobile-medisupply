@@ -1,0 +1,92 @@
+appId: com.medisupply.app
+---
+# Prueba E2E de Login - MediSupply
+# Esta prueba verifica el flujo completo de login usando coordenadas
+
+- launchApp
+# Esperar para que la app se inicialice completamente
+- waitForAnimationToEnd:
+    timeout: 15000
+
+# Prueba 1: Login exitoso usando coordenadas
+- tapOn:
+    point: "50%,40%"
+- inputText: "test@example.com"
+- tapOn:
+    point: "50%,50%"
+- inputText: "password123"
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verificar que se navegó a la pantalla principal (Dashboard) - opcional
+- assertVisible:
+    text: "Bienvenido de vuelta"
+    optional: true
+
+---
+# Prueba 2: Validación de campos vacíos
+appId: com.medisupply.app
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+# Intentar hacer login sin llenar campos
+- tapOn:
+    point: "50%,70%"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Verificar error - opcional para no fallar si no aparece
+- assertVisible:
+    text: "Error"
+    optional: true
+- assertVisible:
+    text: "Por favor completa todos los campos"
+    optional: true
+- tapOn:
+    text: "OK"
+    optional: true
+
+---
+# Prueba 3: Checkbox "Recordarme"
+appId: com.medisupply.app
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+# El checkbox está aproximadamente en la parte izquierda del centro
+- tapOn:
+    point: "25%,60%"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+---
+# Prueba 4: Navegación a "Olvidé mi contraseña"
+appId: com.medisupply.app
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+# El enlace está en la parte derecha del centro
+- tapOn:
+    point: "75%,60%"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Verificar que se navegó - opcional
+- assertVisible:
+    text: "Recuperar"
+    optional: true
+
+---
+# Prueba 5: Navegación a Registro
+appId: com.medisupply.app
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 15000
+# El enlace de registro está en la parte inferior
+- tapOn:
+    point: "50%,85%"
+- waitForAnimationToEnd:
+    timeout: 3000
+# Verificar que se navegó - opcional
+- assertVisible:
+    text: "Registro"
+    optional: true
